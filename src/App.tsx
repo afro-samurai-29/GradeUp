@@ -9,6 +9,11 @@ import SignupPage from "./pages/SignupPage";
 import DashboardPage from "./pages/DashboardPage";
 import NotFound from "./pages/NotFound";
 
+// Role-based Dashboard Components
+import StudentDashboard from "./StudentDashboard";
+import TutorDashboard from "./TutorDashboard";
+import AdminDashboard from "./AdminDashboard";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -22,6 +27,12 @@ const App = () => (
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          
+          {/* Role-based Dashboard Routes */}
+          <Route path="/student/dashboard" element={<StudentDashboard />} />
+          <Route path="/tutor/dashboard" element={<TutorDashboard />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
