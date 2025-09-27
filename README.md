@@ -69,6 +69,7 @@ Simply open [Lovable](https://lovable.dev/projects/ff47c16f-7dc6-469e-877a-189aa
 Yes, you can!
 
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
 
 ## How to run the app without using Lovable
 make sure you have Node.js installed and npm is also installed. 
@@ -77,4 +78,4 @@ after you open the vs code and on the terminal type in or go to the directory of
 the after you type npm run dev. 
 you should get a link starting with Local:.... just coppy that link and paste in on your browser then click enter. You should be good to go. Yes it is long but you only need to do this process once and it will update everything on the site in real time :).
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
