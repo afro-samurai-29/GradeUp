@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import StudentNavbar from '@/components/StudentNavbar';
+import StudentLayout from '@/components/StudentLayout';
 import { 
   BookOpen, 
   FileText, 
@@ -32,7 +32,7 @@ const StudentDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <StudentLayout>
       {/* Header */}
       <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
         <div className="max-w-7xl mx-auto">
@@ -49,9 +49,7 @@ const StudentDashboard = () => {
         </div>
       </div>
 
-      <StudentNavbar />
-
-      <div className="lg:ml-0 max-w-7xl mx-auto p-6 space-y-6">
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
@@ -146,7 +144,7 @@ const StudentDashboard = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </StudentLayout>
   );
 };
 
