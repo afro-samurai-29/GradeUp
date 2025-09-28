@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,14 +13,20 @@ import {
   BookOpen,
   Heart,
   Award,
-  TrendingUp
+  TrendingUp,
+  ArrowLeft
 } from 'lucide-react';
 
 const TutorDashboard = () => {
+  const [searchParams] = useSearchParams();
+  const isAdminView = searchParams.get('adminView') === 'true';
+  const userId = searchParams.get('userId');
+  const userName = searchParams.get('userName');
+
   const quickActions = [
-    { icon: MessageCircle, label: "Help Requests", href: "/tutor/requests", color: "bg-forest-primary", description: "View and respond to student questions", count: "5 pending" },
-    { icon: User, label: "My Profile", href: "/tutor/profile", color: "bg-forest-primary", description: "Manage your tutoring profile and subjects" },
-    { icon: BookOpen, label: "Resources", href: "/tutor/resources", color: "bg-forest-primary", description: "Access teaching materials and guides" },
+    { icon: MessageCircle, label: "Help Requests", href: isAdminView ? `/tutor/requests?adminView=true&userId=${userId}&userName=${encodeURIComponent(userName || '')}` : "/tutor/requests", color: "bg-forest-primary", description: "View and respond to student questions", count: "5 pending" },
+    { icon: User, label: "My Profile", href: isAdminView ? `/tutor/profile?adminView=true&userId=${userId}&userName=${encodeURIComponent(userName || '')}` : "/tutor/profile", color: "bg-forest-primary", description: "Manage your tutoring profile and subjects" },
+    { icon: BookOpen, label: "Resources", href: isAdminView ? `/tutor/resources?adminView=true&userId=${userId}&userName=${encodeURIComponent(userName || '')}` : "/tutor/resources", color: "bg-forest-primary", description: "Access teaching materials and guides" },
   ];
 
   return (
@@ -30,8 +36,25 @@ const TutorDashboard = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Tutor Dashboard</h1>
-              <p className="text-forest-light">Welcome back, Sarah! Thank you for volunteering your time to help students succeed.</p>
+              {isAdminView ? (
+                <div className="flex items-center gap-4">
+                  <Link to="/admin/users">
+                    <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Back to Users
+                    </Button>
+                  </Link>
+                  <div>
+                    <h1 className="text-3xl font-bold mb-2">Tutor Dashboard</h1>
+                    <p className="text-forest-light">Viewing as: {userName || 'Tutor'}</p>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <h1 className="text-3xl font-bold mb-2">Tutor Dashboard</h1>
+                  <p className="text-forest-light">Welcome back, Sarah! Thank you for volunteering your time to help students succeed.</p>
+                </div>
+              )}
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold">47</div>

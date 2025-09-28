@@ -13,6 +13,7 @@ import NotFound from "./pages/NotFound";
 import StudentDashboard from "./StudentDashboard";
 import StudentNotes from "./StudentNotes";
 import StudentPastPapers from "./StudentPastPapers";
+import StudentYouTubeVideos from "./StudentYouTubeVideos";
 import StudentProfile from "./StudentProfile";
 import StudentRequests from "./StudentRequests";
 import StudentInformation from "./StudentInformation";
@@ -30,6 +31,8 @@ import AdminAnalytics from "./AdminAnalytics";
 import AdminSupport from "./AdminSupport";
 import AdminProfile from "./AdminProfile";
 import AdminNewNote from "./AdminNewNote";
+import AdminPastPapers from "./AdminPastPapers";
+import AdminYouTubeVideos from "./AdminYouTubeVideos";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +52,7 @@ const App = () => (
           <Route path="/student" element={<StudentDashboard />} />
           <Route path="/student/notes" element={<StudentNotes />} />
           <Route path="/student/past-papers" element={<StudentPastPapers />} />
+          <Route path="/student/youtube-videos" element={<StudentYouTubeVideos />} />
           <Route path="/student/profile" element={<StudentProfile />} />
           <Route path="/student/requests" element={<StudentRequests />} />
           <Route path="/student/information" element={<StudentInformation />} />
@@ -62,6 +66,8 @@ const App = () => (
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/content" element={<AdminContent />} />
+          <Route path="/admin/past-papers" element={<AdminPastPapers />} />
+          <Route path="/admin/youtube-videos" element={<AdminYouTubeVideos />} />
           <Route path="/admin/analytics" element={<AdminAnalytics />} />
           <Route path="/admin/support" element={<AdminSupport />} />
           <Route path="/admin/profile" element={<AdminProfile />} />

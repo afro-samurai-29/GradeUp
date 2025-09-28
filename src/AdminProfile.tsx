@@ -10,20 +10,20 @@ const AdminProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-gray-800 text-white p-6">
+      <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link to="/admin" className="hover:bg-gray-700 p-2 rounded-lg transition-colors">
+            <Link to="/admin" className="hover:bg-white/20 p-2 rounded-lg transition-colors">
               <ArrowLeft className="h-6 w-6" />
             </Link>
             <div>
               <h1 className="text-3xl font-bold">Admin Profile</h1>
-              <p className="text-gray-300">Manage your administrator account</p>
+              <p className="text-forest-light">Manage your administrator account</p>
             </div>
           </div>
           <Button 
             onClick={() => setIsEditing(!isEditing)}
-            className="bg-white text-gray-800 hover:bg-gray-100"
+            className="bg-white text-forest-primary hover:bg-gray-100"
           >
             {isEditing ? <Save className="h-4 w-4 mr-2" /> : <Edit className="h-4 w-4 mr-2" />}
             {isEditing ? 'Save' : 'Edit'}
@@ -62,14 +62,14 @@ const AdminProfile = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                <h3 className="font-semibold text-green-800">Super Administrator</h3>
-                <p className="text-sm text-green-700">Full access to all platform features and settings</p>
+              <div className="p-4 bg-forest-50 border border-forest-200 rounded-lg">
+                <h3 className="font-semibold text-forest-800">Super Administrator</h3>
+                <p className="text-sm text-forest-700">Full access to all platform features and settings</p>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {['User Management', 'Content Management', 'Analytics', 'Support Center', 'System Settings', 'Backup & Recovery'].map((permission) => (
                   <div key={permission} className="flex items-center gap-2 p-3 bg-gray-50 rounded">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-forest-primary rounded-full"></div>
                     <span className="text-sm">{permission}</span>
                   </div>
                 ))}
