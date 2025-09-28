@@ -51,6 +51,8 @@ const App = () => (
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/resources" element={<StudyResourcesPage />} />
+          <Route path="/centers" element={<RewriteCentersPage />} />
+          <Route path="/deadlines" element={<DeadlineTrackerPage />} />
 
           {/* Student Routes */}
           <Route path="/student" element={<StudentDashboard />} />
@@ -73,7 +75,7 @@ const App = () => (
           <Route path="/admin/support" element={<AdminSupport />} />
           <Route path="/admin/profile" element={<AdminProfile />} />
           <Route path="/admin/new-note" element={<AdminNewNote />} />
-          
+
           <Route path="*" element={<NotFound />} />
         </Routes>
         <AIChatbox />

@@ -17,7 +17,8 @@ import {
   Heart,
   Award,
   TrendingUp,
-  LogOut
+  LogOut,
+  ArrowLeft
 } from 'lucide-react';
 
 const TutorDashboard = () => {
@@ -32,6 +33,9 @@ const TutorDashboard = () => {
   });
   const [recentRequests, setRecentRequests] = useState([]);
   const [tutorProfile, setTutorProfile] = useState(null);
+  const [pastPapers, setPastPapers] = useState([]);
+  const [studyNotes, setStudyNotes] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -49,6 +53,60 @@ const TutorDashboard = () => {
           const tutorData = tutorSnapshot.docs[0].data();
           setTutorProfile(tutorData);
         }
+
+        // Get subjects first
+        const subjectsSnapshot = await getDocs(collection(db, 'resources'));
+        const subjects = subjectsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+
+        // Fetch past papers from all subjects
+        const allPastPapers = [];
+        const allNotes = [];
+        const allVideos = [];
+
+        for (const subject of subjects) {
+          // Get past papers
+          const pastPapersSnapshot = await getDocs(query(
+            collection(db, 'resources', subject.id, 'pastPapers'),
+            orderBy('createdAt', 'desc'),
+            limit(3)
+          ));
+          pastPapersSnapshot.docs.forEach(doc => {
+            allPastPapers.push({ id: doc.id, subjectName: subject.name, ...doc.data() });
+          });
+
+          // Get notes
+          const notesSnapshot = await getDocs(query(
+            collection(db, 'resources', subject.id, 'notes'),
+            orderBy('createdAt', 'desc'),
+            limit(3)
+          ));
+          notesSnapshot.docs.forEach(doc => {
+            allNotes.push({ id: doc.id, subjectName: subject.name, ...doc.data() });
+          });
+
+          // Get videos
+          const videosSnapshot = await getDocs(query(
+            collection(db, 'resources', subject.id, 'videos'),
+            orderBy('createdAt', 'desc'),
+            limit(3)
+          ));
+          videosSnapshot.docs.forEach(doc => {
+            allVideos.push({ id: doc.id, subjectName: subject.name, ...doc.data() });
+          });
+        }
+
+        // Sort and limit to most recent
+        const sortedPastPapers = allPastPapers.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
+        const sortedNotes = allNotes.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
+        const sortedVideos = allVideos.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
+
+        console.log('Debug - Past Papers:', sortedPastPapers);
+        console.log('Debug - Notes:', sortedNotes);
+        console.log('Debug - Videos:', sortedVideos);
+
+        setPastPapers(sortedPastPapers);
+        setStudyNotes(sortedNotes);
+        setVideos(sortedVideos);
 
         // Get tutoring sessions for this tutor
         const sessionsSnapshot = await getDocs(query(collection(db, 'tutoringSessions'), where('tutorId', '==', user.uid)));
@@ -140,7 +198,7 @@ const TutorDashboard = () => {
   const quickActions = [
     { icon: MessageCircle, label: "Help Requests", href: "/tutor/requests", color: "bg-blue-500", description: "View and respond to student questions", count: `${stats.activeRequests} pending` },
     { icon: User, label: "My Profile", href: "/tutor/profile", color: "bg-purple-500", description: "Manage your tutoring profile and subjects" },
-    { icon: BookOpen, label: "Study Resources", href: "/resources", color: "bg-green-500", description: "Access teaching materials and guides" },
+    { icon: BookOpen, label: "Study Resources", href: "/resources", color: "bg-green-500", description: "Access teaching materials and guides", count: `${pastPapers.length + studyNotes.length + videos.length} available` },
   ];
 
   return (
@@ -149,12 +207,17 @@ const TutorDashboard = () => {
       <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Tutor Dashboard</h1>
-              <p className="text-blue-100">
-                Welcome back{tutorProfile ? `, ${tutorProfile.bio?.split(' ')[0] || 'Tutor'}` : ''}!
-                Thank you for volunteering your time to help students succeed.
-              </p>
+            <div className="flex items-center space-x-4">
+              <Link to="/" className="hover:bg-white/10 p-2 rounded-lg transition-colors">
+                <ArrowLeft className="h-6 w-6" />
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold mb-2">Tutor Dashboard</h1>
+                <p className="text-blue-100">
+                  Welcome back{tutorProfile ? `, ${tutorProfile.bio?.split(' ')[0] || 'Tutor'}` : ''}!
+                  Thank you for volunteering your time to help students succeed.
+                </p>
+              </div>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold">{stats.studentsHelped}</div>
@@ -282,6 +345,140 @@ const TutorDashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Study Resources */}
+        <div className="mb-4 p-4 bg-gray-100 rounded-lg">
+          <h3 className="font-semibold mb-2">Debug Info:</h3>
+          <p>Past Papers: {pastPapers.length} items</p>
+          <p>Study Notes: {studyNotes.length} items</p>
+          <p>Videos: {videos.length} items</p>
+          <p>Loading: {loading ? 'Yes' : 'No'}</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Past Papers */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <BookOpen className="h-5 w-5 mr-2 text-blue-500" />
+                Past Papers
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {loading ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
+                    <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
+                  </div>
+                ) : pastPapers.length > 0 ? (
+                  pastPapers.map((paper) => (
+                    <div key={paper.id} className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-sm">{paper.title || `Past Paper ${paper.year}`}</h4>
+                          <p className="text-xs text-muted-foreground">
+                            {paper.subjectName} • {paper.year}
+                          </p>
+                        </div>
+                        <Badge variant="secondary" className="text-xs">
+                          {paper.exam}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <BookOpen className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">No past papers available</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Study Notes */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <BookOpen className="h-5 w-5 mr-2 text-green-500" />
+                Study Notes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {loading ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500 mx-auto"></div>
+                    <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
+                  </div>
+                ) : studyNotes.length > 0 ? (
+                  studyNotes.map((note) => (
+                    <div key={note.id} className="p-3 bg-green-50 rounded-lg border border-green-200">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-sm">{note.title}</h4>
+                          <p className="text-xs text-muted-foreground">
+                            {note.subjectName} • {note.difficulty}
+                          </p>
+                        </div>
+                        <Badge variant="secondary" className="text-xs">
+                          {note.topic || 'General'}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <BookOpen className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">No study notes available</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Videos */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <BookOpen className="h-5 w-5 mr-2 text-purple-500" />
+                Video Lessons
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {loading ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500 mx-auto"></div>
+                    <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
+                  </div>
+                ) : videos.length > 0 ? (
+                  videos.map((video) => (
+                    <div key={video.id} className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-sm">{video.title}</h4>
+                          <p className="text-xs text-muted-foreground">
+                            {video.subjectName} • {video.duration ? `${video.duration}m` : 'N/A'}
+                          </p>
+                        </div>
+                        <Badge variant="secondary" className="text-xs">
+                          {video.difficulty}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <BookOpen className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">No videos available</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Impact & Recognition */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
