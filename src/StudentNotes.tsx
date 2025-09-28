@@ -22,17 +22,37 @@ import {
   FileText,
   Eye,
   Clock,
-  Tag
+  Tag,
+  Play
 } from 'lucide-react';
 import { db } from './firebase';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
-import 'katex/dist/katex.min.css';
-import katex from 'katex';
 
 interface Note {
   id: string;
   title: string;
   subject: string;
+<<<<<<< HEAD
+  topic?: string;
+  content: string;
+  dateCreated: string;
+  lastModified: string;
+  tags: string[];
+}
+
+interface YouTubeVideo {
+  id: string;
+  title: string;
+  subject: string;
+  youtubeUrl: string;
+  videoId: string;
+  description: string;
+  uploadedAt: any;
+  duration?: string;
+  thumbnail?: string;
+}
+
+=======
   content?: string; // content optional until fetched
   dateCreated?: string;
   lastModified?: string;
@@ -40,10 +60,11 @@ interface Note {
 }
 
 const subjects = ['Mathematics', 'English', 'Physical Sciences', 'Life Sciences', 'History', 'Geography'];
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
 
 const StudentNotes = () => {
   const [notes, setNotes] = useState<Note[]>([]);
-
+  const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('all');
   const [isCreating, setIsCreating] = useState(false);
@@ -51,7 +72,13 @@ const StudentNotes = () => {
   const [studentSubjects, setStudentSubjects] = useState<string[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isBookOpen, setIsBookOpen] = useState(false);
+<<<<<<< HEAD
+  const [selectedVideo, setSelectedVideo] = useState<YouTubeVideo | null>(null);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
+  
+=======
 
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
   const [newNote, setNewNote] = useState({
     title: '',
     subject: '',
@@ -73,23 +100,52 @@ const StudentNotes = () => {
 
     const q = query(collection(db, 'notes'), orderBy('createdAt', 'desc'));
     const unsub = onSnapshot(q, (snap) => {
-      const loaded: Note[] = snap.docs
-        .map((d) => {
-          const data = d.data() as any;
-          return {
-            id: d.id,
-            title: data.title || '',
-            subject: data.subject || '',
-            content: data.content || '',
-            dateCreated: data.createdAt?.toDate ? data.createdAt.toDate().toISOString().split('T')[0] : '',
-            lastModified: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString().split('T')[0] : '',
-            tags: Array.isArray(data.tags) ? data.tags : [],
-          };
-        })
+          const loaded: Note[] = snap.docs
+            .map((d) => {
+              const data = d.data() as any;
+              return {
+                id: d.id,
+                title: data.title || '',
+                subject: data.subject || '',
+                topic: data.topic || '',
+                content: data.content || '',
+                dateCreated: data.createdAt?.toDate ? data.createdAt.toDate().toISOString().split('T')[0] : '',
+                lastModified: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString().split('T')[0] : '',
+                tags: Array.isArray(data.tags) ? data.tags : [],
+              };
+            })
         .filter(note => studentSubjects.includes(note.subject)); // Filter by student's subjects
       setNotes(loaded);
     });
     return () => unsub();
+  }, [studentSubjects]);
+
+  // Fetch YouTube videos
+  useEffect(() => {
+    if (studentSubjects.length === 0) return;
+
+    const q = query(collection(db, 'youtubeVideos'), orderBy('uploadedAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const videoList: YouTubeVideo[] = snapshot.docs
+        .map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            title: data.title || '',
+            subject: data.subject || '',
+            youtubeUrl: data.youtubeUrl || '',
+            videoId: data.videoId || '',
+            description: data.description || '',
+            uploadedAt: data.uploadedAt,
+            duration: data.duration || '',
+            thumbnail: data.thumbnail || ''
+          };
+        })
+        .filter(video => studentSubjects.includes(video.subject));
+      setVideos(videoList);
+    });
+
+    return () => unsubscribe();
   }, [studentSubjects]);
 
   const filteredNotes = notes.filter(note => {
@@ -97,6 +153,13 @@ const StudentNotes = () => {
       note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (note.content?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
     const matchesSubject = selectedSubject === 'all' || note.subject === selectedSubject;
+    return matchesSearch && matchesSubject;
+  });
+
+  const filteredVideos = videos.filter(video => {
+    const matchesSearch = video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         video.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSubject = selectedSubject === 'all' || video.subject === selectedSubject;
     return matchesSearch && matchesSubject;
   });
 
@@ -113,6 +176,16 @@ const StudentNotes = () => {
   const closeBook = () => {
     setSelectedNote(null);
     setIsBookOpen(false);
+  };
+
+  const openVideo = (video: YouTubeVideo) => {
+    setSelectedVideo(video);
+    setIsVideoOpen(true);
+  };
+
+  const closeVideo = () => {
+    setSelectedVideo(null);
+    setIsVideoOpen(false);
   };
 
   const handleDeleteNote = (id: string) => {
@@ -179,9 +252,23 @@ const StudentNotes = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <CardTitle className="text-lg mb-2 group-hover:text-forest-primary transition-colors">{note.title}</CardTitle>
+<<<<<<< HEAD
+                      <div className="flex gap-2 flex-wrap">
+                        <Badge variant="secondary" className="text-xs">
+                          <BookOpen className="h-3 w-3 mr-1" />
+                          {note.subject}
+                        </Badge>
+                        {note.topic && (
+                          <Badge variant="outline" className="text-xs text-forest-primary border-forest-primary">
+                            {note.topic}
+                          </Badge>
+                        )}
+                      </div>
+=======
                       <Badge variant="secondary" className="text-xs">
                         <BookOpen className="h-3 w-3 mr-1" /> {note.subject}
                       </Badge>
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
                     </div>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Button
@@ -226,6 +313,74 @@ const StudentNotes = () => {
           </div>
         )}
 
+        {/* Videos Section */}
+        <div className="mt-12">
+          <div className="flex items-center gap-2 mb-6">
+            <Play className="h-6 w-6 text-forest-primary" />
+            <h2 className="text-2xl font-bold text-forest-primary">Educational Videos</h2>
+            <Badge variant="secondary" className="ml-2">
+              {filteredVideos.length} video{filteredVideos.length !== 1 ? 's' : ''}
+            </Badge>
+          </div>
+
+          {filteredVideos.length === 0 ? (
+            <Card>
+              <CardContent className="text-center py-12">
+                <Play className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">No Videos Available</h3>
+                <p className="text-gray-500">No educational videos found for your enrolled subjects</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredVideos.map((video) => (
+                <Card key={video.id} className="hover:shadow-lg transition-shadow cursor-pointer group" onClick={() => openVideo(video)}>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg mb-2 group-hover:text-forest-primary transition-colors line-clamp-2">
+                          {video.title}
+                        </CardTitle>
+                        <div className="flex gap-2 flex-wrap mb-2">
+                          <Badge variant="secondary" className="text-xs">
+                            <BookOpen className="h-3 w-3 mr-1" />
+                            {video.subject}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {/* Video Thumbnail */}
+                    <div className="mb-3 relative">
+                      <img
+                        src={video.thumbnail}
+                        alt={video.title}
+                        className="w-full h-32 object-cover rounded-lg"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/320x180?text=Video+Thumbnail';
+                        }}
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg">
+                        <Play className="h-8 w-8 text-white" />
+                      </div>
+                    </div>
+                    
+                    {video.description && (
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{video.description}</p>
+                    )}
+                    
+                    <div className="text-xs text-gray-500 flex items-center">
+                      <Clock className="h-3 w-3 mr-1" />
+                      Added: {video.uploadedAt?.toDate ? video.uploadedAt.toDate().toLocaleDateString() : 'Unknown'}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Book Reading Dialog */}
         <Dialog open={isBookOpen} onOpenChange={setIsBookOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
@@ -239,6 +394,11 @@ const StudentNotes = () => {
                   <BookOpen className="h-3 w-3 mr-1" />
                   {selectedNote?.subject}
                 </Badge>
+                {selectedNote?.topic && (
+                  <Badge variant="outline" className="text-xs text-forest-primary border-forest-primary">
+                    {selectedNote.topic}
+                  </Badge>
+                )}
                 <div className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
                   Created: {selectedNote ? new Date(selectedNote.dateCreated).toLocaleDateString() : ''}
@@ -273,6 +433,63 @@ const StudentNotes = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Video Player Dialog */}
+        <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+            <DialogHeader className="border-b pb-4">
+              <DialogTitle className="flex items-center gap-2">
+                <Play className="h-5 w-5 text-forest-primary" />
+                {selectedVideo?.title}
+              </DialogTitle>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <Badge variant="secondary" className="text-xs">
+                  <BookOpen className="h-3 w-3 mr-1" />
+                  {selectedVideo?.subject}
+                </Badge>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  Added: {selectedVideo ? (selectedVideo.uploadedAt?.toDate ? selectedVideo.uploadedAt.toDate().toLocaleDateString() : 'Unknown') : ''}
+                </div>
+              </div>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-6">
+                <div className="aspect-video w-full mb-6">
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src={`https://www.youtube.com/embed/${selectedVideo?.videoId}?autoplay=1`}
+                    title={selectedVideo?.title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="rounded-lg shadow-lg"
+                  ></iframe>
+                </div>
+                {selectedVideo?.description && (
+                  <div className="prose prose-sm max-w-none">
+                    <h3 className="text-lg font-semibold mb-2">Description</h3>
+                    <p className="text-gray-600">{selectedVideo.description}</p>
+                  </div>
+                )}
+                <div className="mt-6 flex gap-2">
+                  <Button
+                    onClick={() => window.open(selectedVideo?.youtubeUrl, '_blank')}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Open in YouTube
+                  </Button>
+                  <Button onClick={closeVideo} className="flex-1">
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </StudentLayout>
   );
@@ -281,8 +498,34 @@ const StudentNotes = () => {
 // Markdown Content Component with KaTeX support
 const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
   const formatMarkdown = (text: string) => {
-    // First handle LaTeX math expressions
+    // Simple markdown formatting without KaTeX for now
     let processedText = text
+<<<<<<< HEAD
+      // Handle video embeds first
+      .replace(/\[VIDEO:([^:]+):([^\]]+)\]/g, (match, videoId, title) => {
+        return `
+          <div class="my-6 p-4 border rounded-lg bg-gray-50">
+            <div class="flex items-center gap-2 mb-3">
+              <Play className="h-5 w-5 text-forest-primary" />
+              <span class="font-medium text-forest-primary text-lg">${title}</span>
+            </div>
+            <div class="aspect-video w-full">
+              <iframe 
+                width="100%" 
+                height="100%" 
+                src="https://www.youtube.com/embed/${videoId}" 
+                title="${title}"
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+                class="rounded-lg shadow-md"
+              ></iframe>
+            </div>
+          </div>
+        `;
+      })
+      // Handle regular markdown
+=======
       // Handle block math ($$...$$ and \[...\])
       .replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
         try {
@@ -314,6 +557,7 @@ const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
         }
       })
       // Then handle regular markdown
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/`(.*?)`/g, '<code class="bg-muted px-1 py-0.5 rounded text-sm">$1</code>')

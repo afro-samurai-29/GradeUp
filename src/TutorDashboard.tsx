@@ -1,5 +1,10 @@
+<<<<<<< HEAD
+import React from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+=======
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,11 +22,25 @@ import {
   Heart,
   Award,
   TrendingUp,
+<<<<<<< HEAD
+=======
   LogOut,
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
   ArrowLeft
 } from 'lucide-react';
 
 const TutorDashboard = () => {
+<<<<<<< HEAD
+  const [searchParams] = useSearchParams();
+  const isAdminView = searchParams.get('adminView') === 'true';
+  const userId = searchParams.get('userId');
+  const userName = searchParams.get('userName');
+
+  const quickActions = [
+    { icon: MessageCircle, label: "Help Requests", href: isAdminView ? `/tutor/requests?adminView=true&userId=${userId}&userName=${encodeURIComponent(userName || '')}` : "/tutor/requests", color: "bg-forest-primary", description: "View and respond to student questions", count: "5 pending" },
+    { icon: User, label: "My Profile", href: isAdminView ? `/tutor/profile?adminView=true&userId=${userId}&userName=${encodeURIComponent(userName || '')}` : "/tutor/profile", color: "bg-forest-primary", description: "Manage your tutoring profile and subjects" },
+    { icon: BookOpen, label: "Resources", href: isAdminView ? `/tutor/resources?adminView=true&userId=${userId}&userName=${encodeURIComponent(userName || '')}` : "/tutor/resources", color: "bg-forest-primary", description: "Access teaching materials and guides" },
+=======
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -205,6 +224,7 @@ const TutorDashboard = () => {
     { icon: MessageCircle, label: "Help Requests", href: "/tutor/requests", color: "bg-blue-500", description: "View and respond to student questions", count: `${stats.activeRequests} pending` },
     { icon: User, label: "My Profile", href: "/tutor/profile", color: "bg-purple-500", description: "Manage your tutoring profile and subjects" },
     { icon: BookOpen, label: "Study Resources", href: "/resources", color: "bg-green-500", description: "Access teaching materials and guides", count: `${pastPapers.length + studyNotes.length + videos.length} available` },
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
   ];
 
   return (
@@ -213,6 +233,28 @@ const TutorDashboard = () => {
       <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
+<<<<<<< HEAD
+            <div>
+              {isAdminView ? (
+                <div className="flex items-center gap-4">
+                  <Link to="/admin/users">
+                    <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Back to Users
+                    </Button>
+                  </Link>
+                  <div>
+                    <h1 className="text-3xl font-bold mb-2">Tutor Dashboard</h1>
+                    <p className="text-forest-light">Viewing as: {userName || 'Tutor'}</p>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <h1 className="text-3xl font-bold mb-2">Tutor Dashboard</h1>
+                  <p className="text-forest-light">Welcome back, Sarah! Thank you for volunteering your time to help students succeed.</p>
+                </div>
+              )}
+=======
             <div className="flex items-center space-x-4">
               <Link to="/" className="hover:bg-white/10 p-2 rounded-lg transition-colors">
                 <ArrowLeft className="h-6 w-6" />
@@ -224,6 +266,7 @@ const TutorDashboard = () => {
                   Thank you for volunteering your time to help students succeed.
                 </p>
               </div>
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold">{stats.studentsHelped}</div>
