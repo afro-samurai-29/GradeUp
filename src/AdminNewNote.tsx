@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+<<<<<<< HEAD
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { db } from '@/firebaseConfig';
 import { addDoc, collection, serverTimestamp, onSnapshot, query, orderBy } from 'firebase/firestore';
@@ -19,6 +20,13 @@ interface YouTubeVideo {
   description: string;
   thumbnail?: string;
 }
+=======
+import { db } from './firebase';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { ArrowLeft, Save, Eye, Edit3, Bold, Italic, List, Link as LinkIcon, Code, Calculator } from 'lucide-react';
+import 'katex/dist/katex.min.css';
+import katex from 'katex';
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
 
 const AdminNewNote: React.FC = () => {
   const navigate = useNavigate();
@@ -34,7 +42,7 @@ const AdminNewNote: React.FC = () => {
 
   const availableSubjects = [
     'Mathematics',
-    'English', 
+    'English',
     'Afrikaans',
     'Physical Sciences',
     'Life Sciences',
@@ -262,13 +270,13 @@ Memorize these exact values:
   const insertMarkdown = (before: string, after: string = '') => {
     const textarea = document.querySelector('textarea[name="content"]') as HTMLTextAreaElement;
     if (!textarea) return;
-    
+
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const selectedText = content.substring(start, end);
     const newText = content.substring(0, start) + before + selectedText + after + content.substring(end);
     setContent(newText);
-    
+
     // Focus back to textarea
     setTimeout(() => {
       textarea.focus();
@@ -279,14 +287,14 @@ Memorize these exact values:
   const insertMath = (isBlock: boolean = false) => {
     const textarea = document.querySelector('textarea[name="content"]') as HTMLTextAreaElement;
     if (!textarea) return;
-    
+
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const selectedText = content.substring(start, end);
     const mathWrapper = isBlock ? `$$${selectedText || 'x^2 + y^2 = z^2'}$$` : `$${selectedText || 'x^2'}$`;
     const newText = content.substring(0, start) + mathWrapper + content.substring(end);
     setContent(newText);
-    
+
     // Focus back to textarea
     setTimeout(() => {
       textarea.focus();
@@ -584,6 +592,7 @@ const MarkdownPreview: React.FC<{ content: string }> = ({ content }) => {
   const formatMarkdown = (text: string) => {
     // Simple markdown formatting without KaTeX for now
     let processedText = text
+<<<<<<< HEAD
       // Handle video embeds first
       .replace(/\[VIDEO:([^:]+):([^\]]+)\]/g, (match, videoId, title) => {
         return `
@@ -608,6 +617,39 @@ const MarkdownPreview: React.FC<{ content: string }> = ({ content }) => {
         `;
       })
       // Handle regular markdown
+=======
+      // Handle block math ($$...$$ and \[...\])
+      .replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
+        try {
+          return katex.renderToString(math.trim(), { displayMode: true });
+        } catch (e) {
+          return `<div class="math-error">Math Error: ${math}</div>`;
+        }
+      })
+      .replace(/\\\[([\s\S]*?)\\\]/g, (match, math) => {
+        try {
+          return katex.renderToString(math.trim(), { displayMode: true });
+        } catch (e) {
+          return `<div class="math-error">Math Error: ${math}</div>`;
+        }
+      })
+      // Handle inline math ($...$ and \(...\))
+      .replace(/\$([^$]+)\$/g, (match, math) => {
+        try {
+          return katex.renderToString(math.trim(), { displayMode: false });
+        } catch (e) {
+          return `<span class="math-error">Math Error: ${math}</span>`;
+        }
+      })
+      .replace(/\\\((.*?)\\\)/g, (match, math) => {
+        try {
+          return katex.renderToString(math.trim(), { displayMode: false });
+        } catch (e) {
+          return `<span class="math-error">Math Error: ${math}</span>`;
+        }
+      })
+      // Then handle regular markdown
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/`(.*?)`/g, '<code class="bg-muted px-1 py-0.5 rounded text-sm">$1</code>')

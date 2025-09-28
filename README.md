@@ -1,40 +1,76 @@
-# Welcome to your Lovable project
+# GradeUp - Matric Rewrite & Adult Education Access Portal 🎓
 
-## Project info
+A comprehensive platform designed to help South African students access matric rewrite opportunities, find study resources, connect with tutors, and track important deadlines.
 
-**URL**: https://lovable.dev/projects/ff47c16f-7dc6-469e-877a-189aa27da9e1
+## 🌟 Features
 
-## How can I edit this code?
+### 🏢 Rewrite Centers Directory
+- **Location-based search** - Find centers by province and city
+- **Detailed center information** - Contact details, fees, services, and facilities
+- **Reviews and ratings** - See what other students say about each center
+- **Operating hours** - Know when centers are open
 
-There are several ways of editing your application.
+### 📚 Study Resources Hub
+- **Past papers** - Access previous matric exam papers with solutions
+- **Study guides** - Comprehensive guides for all subjects
+- **Video lessons** - Visual learning materials
+- **Practice tests** - Test your knowledge with interactive quizzes
+- **Free and premium content** - Mix of free resources and paid materials
 
-**Use Lovable**
+### 👨‍🏫 Tutor Network
+- **Qualified tutors** - Verified educators with relevant qualifications
+- **Subject specialization** - Find tutors for specific subjects
+- **Flexible scheduling** - Book sessions that fit your schedule
+- **Rating system** - Choose tutors based on student feedback
+- **Direct communication** - Chat with tutors before booking
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/ff47c16f-7dc6-469e-877a-189aa27da9e1) and start prompting.
+### 📅 Deadline Tracker
+- **Important dates** - Never miss registration or exam deadlines
+- **Smart notifications** - Get reminded before deadlines approach
+- **Progress tracking** - Monitor your preparation timeline
+- **Institution contacts** - Quick access to center contact information
 
-Changes made via Lovable will be committed automatically to this repo.
+### 🤖 AI Study Assistant
+- **24/7 help** - Get instant answers to study questions
+- **Subject-specific guidance** - Tailored help for math, science, languages
+- **Study tips** - Personalized learning strategies
+- **Problem solving** - Step-by-step solutions to complex problems
 
-**Use your preferred IDE**
+## 🚀 Tech Stack
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Frontend**: React 18 + TypeScript + Vite
+- **UI Components**: Lovable UI (shadcn/ui)
+- **Styling**: Tailwind CSS
+- **Database**: Firebase Firestore
+- **Authentication**: Firebase Auth
+- **Storage**: Firebase Storage
+- **State Management**: TanStack Query (React Query)
+- **Routing**: React Router DOM
+- **Icons**: Lucide React
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 📦 Installation
 
-Follow these steps:
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd GradeUp
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+3. **Set up Firebase**
+   - Follow the [Firebase Setup Guide](./FIREBASE_SETUP.md)
+   - Create a Firebase project
+   - Enable Authentication, Firestore, and Storage
+   - Update `src/lib/firebase.ts` with your config
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+4. **Start development server**
+   ```bash
+   npm run dev
+   ```
 
 **Edit a file directly in GitHub**
 

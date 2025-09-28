@@ -3,11 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Users, 
-  FileText, 
-  BarChart3, 
-  MessageCircle, 
+import {
+  Users,
+  FileText,
+  BarChart3,
+  MessageCircle,
   User,
   TrendingUp,
   Download,
@@ -18,6 +18,7 @@ import {
   Heart,
   Star,
   Eye,
+<<<<<<< HEAD
   Play,
   Trash2,
   LogOut,
@@ -30,6 +31,12 @@ import { collection, onSnapshot, orderBy, query, deleteDoc, doc, updateDoc, serv
 import { ref, deleteObject } from 'firebase/storage';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+=======
+  LogOut
+} from 'lucide-react';
+import { db } from './firebase';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -45,6 +52,10 @@ const AdminDashboard = () => {
     tags: ''
   });
   const [autoSaveTimeout, setAutoSaveTimeout] = useState(null);
+
+  const handleLogout = () => {
+    navigate('/');
+  };
 
   const handleLogout = () => {
     navigate('/');
@@ -217,15 +228,27 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-background">
       <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto">
+<<<<<<< HEAD
           <div className="flex justify-between items-center">
+=======
+          <div className="flex items-center justify-between">
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
             <div>
               <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
               <p className="text-forest-light">Manage platform content, users, and analytics</p>
             </div>
+<<<<<<< HEAD
             <Button
               onClick={handleLogout}
               variant="ghost"
               className="text-white hover:bg-white/20 border border-white/30"
+=======
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="text-black border-white bg-white hover:bg-gray-100 hover:text-black"
+              onClick={handleLogout}
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
             >
               <LogOut className="h-4 w-4 mr-2" />
               Logout

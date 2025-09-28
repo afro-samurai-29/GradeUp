@@ -5,15 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import StudentNavbar from '@/components/StudentNavbar';
-import { 
-  ArrowLeft, 
-  Plus, 
-  Search, 
-  BookOpen, 
-  Edit, 
-  Trash2, 
+
+import StudentLayout from '@/components/StudentLayout'
+import {
+  ArrowLeft,
+  Plus,
+  Search,
+  BookOpen,
+  Edit,
+  Trash2,
   Save,
   X,
   Calculator,
@@ -23,13 +25,14 @@ import {
   Tag,
   Play
 } from 'lucide-react';
-import { db } from '@/firebaseConfig';
+import { db } from './firebase';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 
 interface Note {
   id: string;
   title: string;
   subject: string;
+<<<<<<< HEAD
   topic?: string;
   content: string;
   dateCreated: string;
@@ -49,6 +52,15 @@ interface YouTubeVideo {
   thumbnail?: string;
 }
 
+=======
+  content?: string; // content optional until fetched
+  dateCreated?: string;
+  lastModified?: string;
+  tags?: string[];
+}
+
+const subjects = ['Mathematics', 'English', 'Physical Sciences', 'Life Sciences', 'History', 'Geography'];
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
 
 const StudentNotes = () => {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -60,9 +72,13 @@ const StudentNotes = () => {
   const [studentSubjects, setStudentSubjects] = useState<string[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isBookOpen, setIsBookOpen] = useState(false);
+<<<<<<< HEAD
   const [selectedVideo, setSelectedVideo] = useState<YouTubeVideo | null>(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   
+=======
+
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
   const [newNote, setNewNote] = useState({
     title: '',
     subject: '',
@@ -133,9 +149,9 @@ const StudentNotes = () => {
   }, [studentSubjects]);
 
   const filteredNotes = notes.filter(note => {
-    const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         note.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesSearch =
+      note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (note.content?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
     const matchesSubject = selectedSubject === 'all' || note.subject === selectedSubject;
     return matchesSearch && matchesSubject;
   });
@@ -177,7 +193,7 @@ const StudentNotes = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <StudentLayout>
       {/* Header */}
       <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto">
@@ -190,10 +206,7 @@ const StudentNotes = () => {
         </div>
       </div>
 
-      <StudentNavbar />
-
       <div className="max-w-7xl mx-auto p-6">
-        {/* Search and Filter */}
         <Card className="mb-6">
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4">
@@ -239,6 +252,7 @@ const StudentNotes = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <CardTitle className="text-lg mb-2 group-hover:text-forest-primary transition-colors">{note.title}</CardTitle>
+<<<<<<< HEAD
                       <div className="flex gap-2 flex-wrap">
                         <Badge variant="secondary" className="text-xs">
                           <BookOpen className="h-3 w-3 mr-1" />
@@ -250,10 +264,15 @@ const StudentNotes = () => {
                           </Badge>
                         )}
                       </div>
+=======
+                      <Badge variant="secondary" className="text-xs">
+                        <BookOpen className="h-3 w-3 mr-1" /> {note.subject}
+                      </Badge>
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
                     </div>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -364,8 +383,8 @@ const StudentNotes = () => {
 
         {/* Book Reading Dialog */}
         <Dialog open={isBookOpen} onOpenChange={setIsBookOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-            <DialogHeader className="border-b pb-4">
+          <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+            <DialogHeader className="border-b pb-4 flex-shrink-0">
               <DialogTitle className="flex items-center gap-2">
                 <BookOpen className="h-5 w-5 text-forest-primary" />
                 {selectedNote?.title}
@@ -387,13 +406,13 @@ const StudentNotes = () => {
               </div>
             </DialogHeader>
             
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto min-h-0">
               <div className="book-content p-6">
                 <div className="max-w-3xl mx-auto">
                   <div className="prose prose-lg max-w-none">
                     <MarkdownContent content={selectedNote?.content || ''} />
                   </div>
-                  
+
                   {selectedNote?.tags && selectedNote.tags.length > 0 && (
                     <div className="mt-8 pt-6 border-t">
                       <div className="flex items-center gap-2 mb-3">
@@ -472,7 +491,7 @@ const StudentNotes = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </div>
+    </StudentLayout>
   );
 };
 
@@ -481,6 +500,7 @@ const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
   const formatMarkdown = (text: string) => {
     // Simple markdown formatting without KaTeX for now
     let processedText = text
+<<<<<<< HEAD
       // Handle video embeds first
       .replace(/\[VIDEO:([^:]+):([^\]]+)\]/g, (match, videoId, title) => {
         return `
@@ -505,6 +525,39 @@ const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
         `;
       })
       // Handle regular markdown
+=======
+      // Handle block math ($$...$$ and \[...\])
+      .replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
+        try {
+          return katex.renderToString(math.trim(), { displayMode: true });
+        } catch (e) {
+          return `<div class="math-error">Math Error: ${math}</div>`;
+        }
+      })
+      .replace(/\\\[([\s\S]*?)\\\]/g, (match, math) => {
+        try {
+          return katex.renderToString(math.trim(), { displayMode: true });
+        } catch (e) {
+          return `<div class="math-error">Math Error: ${math}</div>`;
+        }
+      })
+      // Handle inline math ($...$ and \(...\))
+      .replace(/\$([^$]+)\$/g, (match, math) => {
+        try {
+          return katex.renderToString(math.trim(), { displayMode: false });
+        } catch (e) {
+          return `<span class="math-error">Math Error: ${math}</span>`;
+        }
+      })
+      .replace(/\\\((.*?)\\\)/g, (match, math) => {
+        try {
+          return katex.renderToString(math.trim(), { displayMode: false });
+        } catch (e) {
+          return `<span class="math-error">Math Error: ${math}</span>`;
+        }
+      })
+      // Then handle regular markdown
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/`(.*?)`/g, '<code class="bg-muted px-1 py-0.5 rounded text-sm">$1</code>')

@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { BookOpen, ArrowLeft, User, GraduationCap, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-import { auth, db } from '../firebaseConfig'; // Make sure this path is correct
+import { auth, db } from '../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 

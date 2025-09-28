@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
+=======
+import React, { useEffect, useState } from 'react';
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,11 +10,13 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import StudentNavbar from '@/components/StudentNavbar';
-import { 
-  ArrowLeft, 
-  Download, 
-  Search, 
-  BookOpen, 
+import { db } from './firebase';
+import { collection, getDocs } from 'firebase/firestore';
+import {
+  ArrowLeft,
+  Download,
+  Search,
+  BookOpen,
   Calendar,
   FileText,
   Star,
@@ -34,9 +40,13 @@ interface PastPaper {
 
 const StudentPastPapers = () => {
   const [pastPapers, setPastPapers] = useState<PastPaper[]>([]);
+<<<<<<< HEAD
   const [studentSubjects, setStudentSubjects] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+=======
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('all');
@@ -102,6 +112,7 @@ const StudentPastPapers = () => {
 
   const filteredPapers = pastPapers.filter(paper => {
     const matchesSearch = paper.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+<<<<<<< HEAD
                          paper.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSubject = selectedSubject === 'all' || paper.subject === selectedSubject;
     const matchesYear = selectedYear === 'all' || paper.year === selectedYear;
@@ -124,6 +135,78 @@ const StudentPastPapers = () => {
       console.error('Error downloading file:', error);
       // Fallback to opening in new tab
       window.open(paper.fileUrl, '_blank');
+=======
+      paper.paper.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSubject = selectedSubject === 'all' || paper.subject === selectedSubject;
+    const matchesYear = selectedYear === 'all' || paper.year.toString() === selectedYear;
+    const matchesType = selectedType === 'all' || paper.type === selectedType;
+
+    return matchesSearch && matchesSubject && matchesYear && matchesType;
+  });
+
+  useEffect(() => {
+    const fetchPastPapers = async () => {
+      setIsLoading(true);
+      try {
+        // First get all subjects
+        const subjectsSnapshot = await getDocs(collection(db, 'resources'));
+        const papers: PastPaper[] = [];
+
+        for (const subjectDoc of subjectsSnapshot.docs) {
+          const subjectData = subjectDoc.data();
+          const subjectName = subjectData.name;
+
+          // Get past papers from this subject's pastPapers subcollection
+          const papersSnapshot = await getDocs(collection(db, 'resources', subjectDoc.id, 'pastPapers'));
+
+          papersSnapshot.forEach(paperDoc => {
+            const paperData = paperDoc.data();
+
+            // Map Firestore structure to UI structure
+            const difficultyMap: Record<string, 'easy' | 'medium' | 'hard'> = {
+              beginner: 'easy',
+              intermediate: 'medium',
+              advanced: 'hard',
+            };
+            const added = paperData.createdAt?.seconds
+              ? new Date(paperData.createdAt.seconds * 1000).toISOString().split('T')[0]
+              : (paperData.createdAt ? new Date(paperData.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
+
+            papers.push({
+              id: paperDoc.id,
+              subject: paperData.subject || subjectName,
+              year: Number(paperData.year) || new Date().getFullYear(),
+              paper: paperData.title || paperData.exam || 'Paper',
+              type: (paperData.type as any) || 'exam',
+              term: paperData.term,
+              difficulty: difficultyMap[paperData.difficulty] || 'medium',
+              downloadCount: Number(paperData.downloadCount || 0),
+              rating: Number(paperData.rating || 4.3),
+              fileSize: paperData.fileSize || '—',
+              addedDate: added,
+            });
+          });
+        }
+
+        // Sort by most recent added date
+        papers.sort((a, b) => new Date(b.addedDate).getTime() - new Date(a.addedDate).getTime());
+        setPastPapers(papers);
+      } catch (e) {
+        console.error('Failed to load past papers:', e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPastPapers();
+  }, []);
+
+  const handleDownload = (paperId: string) => {
+    const paper = pastPapers.find(p => p.id === paperId);
+    if (paper) {
+      alert(`Downloading: ${paper.subject} ${paper.year} ${paper.paper}`);
+      // In real app, this would trigger actual download
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
     }
   };
 
@@ -146,7 +229,7 @@ const StudentPastPapers = () => {
 
 
   return (
-    <div className="min-h-screen bg-background">
+    <StudentLayout>image.png
       {/* Header */}
       <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto">
@@ -155,7 +238,7 @@ const StudentPastPapers = () => {
               <h1 className="text-3xl font-bold">Past Papers</h1>
               <p className="text-forest-light mt-1">Browse and download previous exam papers</p>
             </div>
-            <Button 
+            <Button
               onClick={() => setShowFilters(!showFilters)}
               className="bg-white text-forest-primary hover:bg-forest-light shadow-lg"
             >
@@ -165,8 +248,6 @@ const StudentPastPapers = () => {
           </div>
         </div>
       </div>
-
-      <StudentNavbar />
 
       <div className="max-w-7xl mx-auto p-6">
         {/* Search and Filters */}
@@ -183,7 +264,7 @@ const StudentPastPapers = () => {
                   className="pl-10"
                 />
               </div>
-              
+
               {/* Filters */}
               {showFilters && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
@@ -200,7 +281,7 @@ const StudentPastPapers = () => {
                       ))}
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-1">Year</label>
                     <select
@@ -210,7 +291,25 @@ const StudentPastPapers = () => {
                     >
                       <option value="all">All Years</option>
                       {years.map(year => (
+<<<<<<< HEAD
                         <option key={year} value={year}>{year}</option>
+=======
+                        <option key={year} value={year.toString()}>{year}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Type</label>
+                    <select
+                      value={selectedType}
+                      onChange={(e) => setSelectedType(e.target.value)}
+                      className="w-full px-3 py-2 border rounded-md bg-background"
+                    >
+                      <option value="all">All Types</option>
+                      {types.map(type => (
+                        <option key={type.value} value={type.value}>{type.label}</option>
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
                       ))}
                     </select>
                   </div>
@@ -223,13 +322,14 @@ const StudentPastPapers = () => {
         {/* Results Summary */}
         <div className="mb-6">
           <p className="text-gray-600">
-            Showing {filteredPapers.length} paper{filteredPapers.length !== 1 ? 's' : ''}
+            {isLoading ? 'Loading papers…' : `Showing ${filteredPapers.length} paper${filteredPapers.length !== 1 ? 's' : ''}`}
           </p>
         </div>
 
         {/* Papers Grid */}
         {isLoading ? (
           <Card>
+<<<<<<< HEAD
             <CardContent className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forest-primary mx-auto mb-4"></div>
               <h3 className="text-xl font-semibold text-gray-600 mb-2">Loading Past Papers...</h3>
@@ -249,6 +349,9 @@ const StudentPastPapers = () => {
                 Try Again
               </Button>
             </CardContent>
+=======
+            <CardContent className="text-center py-12">Loading...</CardContent>
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
           </Card>
         ) : filteredPapers.length === 0 ? (
           <Card>
@@ -289,15 +392,24 @@ const StudentPastPapers = () => {
                       <p><strong>Size:</strong> {formatFileSize(paper.fileSize)}</p>
                       <p><strong>Uploaded:</strong> {paper.uploadedAt?.toDate ? paper.uploadedAt.toDate().toLocaleDateString() : 'Unknown'}</p>
                     </div>
-                    
+
                     {/* Action Buttons */}
                     <div className="flex gap-2">
+<<<<<<< HEAD
                       <Button 
                         onClick={() => handleViewPdf(paper)}
                         className="flex-1 bg-forest-primary hover:bg-forest-secondary"
                       >
                         <Eye className="h-4 w-4 mr-2" />
                         {isPdfFile(paper.fileName) ? 'View PDF' : 'View File'}
+=======
+                      <Button
+                        onClick={() => handleDownload(paper.id)}
+                        className="flex-1 bg-blue-600 hover:bg-blue-700"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Download
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
                       </Button>
                       <Button 
                         variant="outline" 
@@ -308,6 +420,13 @@ const StudentPastPapers = () => {
                         <Download className="h-4 w-4" />
                       </Button>
                     </div>
+<<<<<<< HEAD
+=======
+
+                    <div className="text-xs text-gray-400">
+                      Added: {new Date(paper.addedDate).toLocaleDateString()}
+                    </div>
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
                   </div>
                 </CardContent>
               </Card>
@@ -408,7 +527,7 @@ const StudentPastPapers = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </div>
+    </StudentLayout>
   );
 };
 

@@ -7,7 +7,13 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import DashboardPage from "./pages/DashboardPage";
+import RewriteCentersPage from "./pages/RewriteCentersPage";
+import StudyResourcesPage from "./pages/StudyResourcesPage";
+import TutorNetworkPage from "./pages/TutorNetworkPage";
+import DeadlineTrackerPage from "./pages/DeadlineTrackerPage";
 import NotFound from "./pages/NotFound";
+import AIChatbox from './components/AIChatbox';
+
 
 // Student Components
 import StudentDashboard from "./StudentDashboard";
@@ -47,7 +53,10 @@ const App = () => (
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          
+          <Route path="/resources" element={<StudyResourcesPage />} />
+          <Route path="/centers" element={<RewriteCentersPage />} />
+          <Route path="/deadlines" element={<DeadlineTrackerPage />} />
+
           {/* Student Routes */}
           <Route path="/student" element={<StudentDashboard />} />
           <Route path="/student/notes" element={<StudentNotes />} />
@@ -56,12 +65,12 @@ const App = () => (
           <Route path="/student/profile" element={<StudentProfile />} />
           <Route path="/student/requests" element={<StudentRequests />} />
           <Route path="/student/information" element={<StudentInformation />} />
-          
+
           {/* Tutor Routes */}
           <Route path="/tutor" element={<TutorDashboard />} />
           <Route path="/tutor/profile" element={<TutorProfile />} />
           <Route path="/tutor/requests" element={<TutorRequests />} />
-          
+
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<AdminUsers />} />
@@ -72,9 +81,10 @@ const App = () => (
           <Route path="/admin/support" element={<AdminSupport />} />
           <Route path="/admin/profile" element={<AdminProfile />} />
           <Route path="/admin/new-note" element={<AdminNewNote />} />
-          
+
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <AIChatbox />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

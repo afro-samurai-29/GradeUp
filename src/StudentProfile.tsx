@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import StudentNavbar from '@/components/StudentNavbar';
-import { 
-  ArrowLeft, 
-  User, 
-  Mail, 
-  Phone, 
-  BookOpen, 
+import StudentLayout from '@/components/StudentLayout';
+import { auth, db } from './firebase';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import {
+  ArrowLeft,
+  User,
+  Mail,
+  Phone,
+  BookOpen,
   Target,
   Calendar,
   MapPin,
@@ -24,17 +26,18 @@ import {
 const StudentProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@email.com',
-    phone: '+27 81 234 5678',
-    dateOfBirth: '1995-03-15',
-    address: 'Cape Town, Western Cape',
-    subjects: ['Mathematics', 'English', 'Physical Sciences', 'Life Sciences'],
-    studyGoals: 'Pass matric with distinctions in Mathematics and Physical Sciences to pursue engineering at university.',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    dateOfBirth: '',
+    address: '',
+    subjects: [] as string[],
+    studyGoals: '',
     examYear: '2024',
-    examCenter: 'Cape Town High School'
+    examCenter: ''
   });
+  const [loading, setLoading] = useState<boolean>(true);
 
   const [editForm, setEditForm] = useState(profile);
 
@@ -52,9 +55,107 @@ const StudentProfile = () => {
     'Information Technology'
   ];
 
-  const handleSave = () => {
-    setProfile(editForm);
-    setIsEditing(false);
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const user = auth.currentUser;
+        if (!user) {
+          setLoading(false);
+          return;
+        }
+        const ref = doc(db, 'users', user.uid);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data() as any;
+          const loaded = {
+            firstName: data.firstName || '',
+            lastName: data.lastName || '',
+            email: data.email || user.email || '',
+            phone: data.phoneNumber || '',
+            dateOfBirth: data.dateOfBirth || '',
+            address: data.address?.city ? `${data.address.city}, ${data.address.province || ''}`.trim() : (data.address || ''),
+            subjects: data.subjects || [],
+            studyGoals: data.studyGoals || '',
+            examYear: data.examYear || '2024',
+            examCenter: data.examCenter || '',
+          };
+          setProfile(loaded);
+          setEditForm(loaded);
+        } else {
+          // create a placeholder profile
+          const seed = {
+            firstName: '',
+            lastName: '',
+            email: user.email || '',
+            phoneNumber: '',
+            dateOfBirth: '',
+            address: '',
+            subjects: [],
+            studyGoals: '',
+            examYear: '2024',
+            examCenter: '',
+            role: 'student',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+          await setDoc(ref, seed);
+          setProfile({
+            firstName: '',
+            lastName: '',
+            email: user.email || '',
+            phone: '',
+            dateOfBirth: '',
+            address: '',
+            subjects: [],
+            studyGoals: '',
+            examYear: '2024',
+            examCenter: '',
+          });
+          setEditForm({
+            firstName: '',
+            lastName: '',
+            email: user.email || '',
+            phone: '',
+            dateOfBirth: '',
+            address: '',
+            subjects: [],
+            studyGoals: '',
+            examYear: '2024',
+            examCenter: '',
+          });
+        }
+      } catch (e) {
+        console.error('Failed to load profile:', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProfile();
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const ref = doc(db, 'users', user.uid);
+      await updateDoc(ref, {
+        firstName: editForm.firstName,
+        lastName: editForm.lastName,
+        email: editForm.email,
+        phoneNumber: editForm.phone,
+        dateOfBirth: editForm.dateOfBirth,
+        address: editForm.address,
+        subjects: editForm.subjects,
+        studyGoals: editForm.studyGoals,
+        examYear: editForm.examYear,
+        examCenter: editForm.examCenter,
+        updatedAt: new Date(),
+      });
+      setProfile(editForm);
+      setIsEditing(false);
+    } catch (e) {
+      console.error('Failed to save profile:', e);
+    }
   };
 
   const handleCancel = () => {
@@ -79,7 +180,7 @@ const StudentProfile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <StudentLayout>
       {/* Header */}
       <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -93,7 +194,7 @@ const StudentProfile = () => {
             </div>
           </div>
           {!isEditing ? (
-            <Button 
+            <Button
               onClick={() => setIsEditing(true)}
               className="bg-white text-purple-600 hover:bg-purple-50"
             >
@@ -102,14 +203,14 @@ const StudentProfile = () => {
             </Button>
           ) : (
             <div className="flex gap-2">
-              <Button 
+              <Button
                 onClick={handleSave}
                 className="bg-green-600 hover:bg-green-700"
               >
                 <Save className="h-4 w-4 mr-2" />
                 Save
               </Button>
-              <Button 
+              <Button
                 onClick={handleCancel}
                 variant="outline"
                 className="text-white border-white hover:bg-purple-700"
@@ -122,9 +223,12 @@ const StudentProfile = () => {
         </div>
       </div>
 
-      <StudentNavbar />
-
       <div className="max-w-4xl mx-auto p-6 space-y-6">
+        {loading && (
+          <Card>
+            <CardContent className="py-12 text-center">Loading profile…</CardContent>
+          </Card>
+        )}
         {/* Personal Information */}
         <Card>
           <CardHeader>
@@ -140,7 +244,7 @@ const StudentProfile = () => {
                 {isEditing ? (
                   <Input
                     value={editForm.firstName}
-                    onChange={(e) => setEditForm({...editForm, firstName: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
                   />
                 ) : (
                   <p className="p-2 bg-gray-50 rounded">{profile.firstName}</p>
@@ -151,14 +255,14 @@ const StudentProfile = () => {
                 {isEditing ? (
                   <Input
                     value={editForm.lastName}
-                    onChange={(e) => setEditForm({...editForm, lastName: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
                   />
                 ) : (
                   <p className="p-2 bg-gray-50 rounded">{profile.lastName}</p>
                 )}
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Email</label>
@@ -166,7 +270,7 @@ const StudentProfile = () => {
                   <Input
                     type="email"
                     value={editForm.email}
-                    onChange={(e) => setEditForm({...editForm, email: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
                   />
                 ) : (
                   <p className="p-2 bg-gray-50 rounded flex items-center">
@@ -180,7 +284,7 @@ const StudentProfile = () => {
                 {isEditing ? (
                   <Input
                     value={editForm.phone}
-                    onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
                   />
                 ) : (
                   <p className="p-2 bg-gray-50 rounded flex items-center">
@@ -198,7 +302,7 @@ const StudentProfile = () => {
                   <Input
                     type="date"
                     value={editForm.dateOfBirth}
-                    onChange={(e) => setEditForm({...editForm, dateOfBirth: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, dateOfBirth: e.target.value })}
                   />
                 ) : (
                   <p className="p-2 bg-gray-50 rounded flex items-center">
@@ -212,7 +316,7 @@ const StudentProfile = () => {
                 {isEditing ? (
                   <Input
                     value={editForm.address}
-                    onChange={(e) => setEditForm({...editForm, address: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
                   />
                 ) : (
                   <p className="p-2 bg-gray-50 rounded flex items-center">
@@ -292,7 +396,7 @@ const StudentProfile = () => {
             {isEditing ? (
               <Textarea
                 value={editForm.studyGoals}
-                onChange={(e) => setEditForm({...editForm, studyGoals: e.target.value})}
+                onChange={(e) => setEditForm({ ...editForm, studyGoals: e.target.value })}
                 rows={4}
                 placeholder="Describe your study goals and what you hope to achieve..."
               />
@@ -314,7 +418,7 @@ const StudentProfile = () => {
                 {isEditing ? (
                   <select
                     value={editForm.examYear}
-                    onChange={(e) => setEditForm({...editForm, examYear: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, examYear: e.target.value })}
                     className="w-full px-3 py-2 border rounded-md bg-background"
                   >
                     <option value="2024">2024</option>
@@ -329,7 +433,7 @@ const StudentProfile = () => {
                 {isEditing ? (
                   <Input
                     value={editForm.examCenter}
-                    onChange={(e) => setEditForm({...editForm, examCenter: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, examCenter: e.target.value })}
                   />
                 ) : (
                   <p className="p-2 bg-gray-50 rounded">{profile.examCenter}</p>
@@ -339,7 +443,7 @@ const StudentProfile = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </StudentLayout>
   );
 };
 
