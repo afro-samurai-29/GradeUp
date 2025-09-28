@@ -228,8 +228,8 @@ const StudentNotes = () => {
 
         {/* Book Reading Dialog */}
         <Dialog open={isBookOpen} onOpenChange={setIsBookOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-            <DialogHeader className="border-b pb-4">
+          <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+            <DialogHeader className="border-b pb-4 flex-shrink-0">
               <DialogTitle className="flex items-center gap-2">
                 <BookOpen className="h-5 w-5 text-forest-primary" />
                 {selectedNote?.title}
@@ -246,7 +246,7 @@ const StudentNotes = () => {
               </div>
             </DialogHeader>
             
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto min-h-0">
               <div className="book-content p-6">
                 <div className="max-w-3xl mx-auto">
                   <div className="prose prose-lg max-w-none">
