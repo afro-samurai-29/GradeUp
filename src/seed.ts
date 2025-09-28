@@ -29,7 +29,7 @@ const seedData = {
     }
   },
   "resources": {
-    "mathematics": {
+    "Mathematics": {
       "name": "Mathematics",
       "grade": "12",
       "description": "Matric Mathematics resources",
@@ -72,7 +72,7 @@ const seedData = {
         }
       }
     },
-    "isizulu": {
+    "Isizulu": {
       "name": "IsiZulu FAL",
       "grade": "12",
       "description": "Matric IsiZulu resources",

@@ -1,11 +1,17 @@
+// src/pages/SignupPage.tsx
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, ArrowLeft } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { BookOpen, ArrowLeft, User, GraduationCap, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+import { auth, db } from '../firebaseConfig'; // Make sure this path is correct
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -14,9 +20,11 @@ const SignupPage = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    role: 'learner',
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -25,13 +33,20 @@ const SignupPage = () => {
     }));
   };
 
+  const handleRoleChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      role: value
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Error",
-        description: "Passwords don't match. Please try again.",
+        description: "Passwords don't match.",
         variant: "destructive",
       });
       return;
@@ -39,14 +54,57 @@ const SignupPage = () => {
 
     setIsLoading(true);
 
-    // Simulate signup process
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      // Create user in Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+      const user = userCredential.user;
+
+      // Store additional user data in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        role: formData.role,
+        createdAt: serverTimestamp(),
+      });
+
       toast({
         title: "Account created!",
         description: "Welcome to GradeUp! You can now start your learning journey.",
       });
-    }, 1000);
+
+      // Navigate to appropriate dashboard based on role
+      if (formData.role === 'learner') {
+        navigate('/student/dashboard');
+      } else if (formData.role === 'tutor') {
+        navigate('/tutor/dashboard');
+      } else if (formData.role === 'admin') {
+        navigate('/admin/dashboard');
+      }
+
+      // Reset form
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        role: 'learner',
+      });
+
+    } catch (error: any) {
+      toast({
+        title: "Signup failed",
+        description: error.message || "Something went wrong.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -118,7 +176,7 @@ const SignupPage = () => {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
@@ -143,6 +201,42 @@ const SignupPage = () => {
                   onChange={handleChange}
                   required
                 />
+              </div>
+
+              <div className="space-y-3">
+                <Label>Select Your Role</Label>
+                <RadioGroup value={formData.role} onValueChange={handleRoleChange}>
+                  <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-forest-light/20 transition-colors">
+                    <RadioGroupItem value="learner" id="learner" />
+                    <Label htmlFor="learner" className="flex items-center space-x-2 cursor-pointer flex-1">
+                      <User className="h-4 w-4 text-forest-primary" />
+                      <div>
+                        <div className="font-medium">Learner</div>
+                        <div className="text-sm text-muted-foreground">I want to learn and get help with my studies</div>
+                      </div>
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-forest-light/20 transition-colors">
+                    <RadioGroupItem value="tutor" id="tutor" />
+                    <Label htmlFor="tutor" className="flex items-center space-x-2 cursor-pointer flex-1">
+                      <GraduationCap className="h-4 w-4 text-forest-secondary" />
+                      <div>
+                        <div className="font-medium">Tutor</div>
+                        <div className="text-sm text-muted-foreground">I want to help students with their studies</div>
+                      </div>
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-forest-light/20 transition-colors">
+                    <RadioGroupItem value="admin" id="admin" />
+                    <Label htmlFor="admin" className="flex items-center space-x-2 cursor-pointer flex-1">
+                      <Shield className="h-4 w-4 text-forest-accent" />
+                      <div>
+                        <div className="font-medium">Admin</div>
+                        <div className="text-sm text-muted-foreground">I want to manage the platform</div>
+                      </div>
+                    </Label>
+                  </div>
+                </RadioGroup>
               </div>
 
               <Button

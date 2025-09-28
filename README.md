@@ -72,159 +72,46 @@ A comprehensive platform designed to help South African students access matric r
    npm run dev
    ```
 
-5. **Open your browser**
-   Navigate to `http://localhost:5173`
+**Edit a file directly in GitHub**
 
-## 🏗️ Project Structure
+- Navigate to the desired file(s).
+- Click the "Edit" button (pencil icon) at the top right of the file view.
+- Make your changes and commit the changes.
 
-```
-src/
-├── components/          # Reusable UI components
-│   ├── ui/             # shadcn/ui components
-│   ├── Header.tsx      # Navigation header
-│   ├── Hero.tsx        # Landing page hero section
-│   └── AIChatbox.tsx   # AI assistant chat widget
-├── pages/              # Page components
-│   ├── HomePage.tsx    # Landing page
-│   ├── LoginPage.tsx   # User authentication
-│   ├── SignupPage.tsx  # User registration
-│   ├── DashboardPage.tsx # User dashboard
-│   ├── RewriteCentersPage.tsx # Centers directory
-│   ├── StudyResourcesPage.tsx # Resources hub
-│   ├── TutorNetworkPage.tsx # Tutor marketplace
-│   └── DeadlineTrackerPage.tsx # Deadline management
-├── lib/                # Utility libraries
-│   ├── firebase.ts     # Firebase configuration
-│   ├── firestore.ts    # Firestore operations
-│   └── utils.ts        # General utilities
-├── types/              # TypeScript type definitions
-│   └── database.ts     # Database schema types
-├── hooks/              # Custom React hooks
-└── assets/             # Static assets
-```
+**Use GitHub Codespaces**
 
-## 🔧 Configuration
+- Navigate to the main page of your repository.
+- Click on the "Code" button (green button) near the top right.
+- Select the "Codespaces" tab.
+- Click on "New codespace" to launch a new Codespace environment.
+- Edit files directly within the Codespace and commit and push your changes once you're done.
 
-### Environment Variables
-Create a `.env.local` file:
-```env
-VITE_FIREBASE_API_KEY=your-api-key
-VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your-project-id
-VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
-VITE_FIREBASE_APP_ID=your-app-id
-```
+## What technologies are used for this project?
 
-### Firebase Setup
-1. Create a Firebase project
-2. Enable Authentication (Email/Password)
-3. Create Firestore database
-4. Enable Storage
-5. Update security rules (see Firebase Setup Guide)
+This project is built with:
 
-## 📱 Pages Overview
+- Vite
+- TypeScript
+- React
+- shadcn-ui
+- Tailwind CSS
 
-### 🏠 Home Page
-- Hero section with key features
-- Statistics and testimonials
-- Call-to-action buttons
-- Feature highlights
+## How can I deploy this project?
 
-### 🏢 Centers Page (`/centers`)
-- Search and filter centers by location
-- Detailed center cards with ratings
-- Contact information and services
-- Map integration (future feature)
+Simply open [Lovable](https://lovable.dev/projects/ff47c16f-7dc6-469e-877a-189aa27da9e1) and click on Share -> Publish.
 
-### 📚 Resources Page (`/resources`)
-- Browse study materials by subject/type
-- Download past papers and guides
-- Watch video lessons
-- Filter by difficulty and price
+## Can I connect a custom domain to my Lovable project?
 
-### 👨‍🏫 Tutors Page (`/tutors`)
-- Find qualified tutors by subject
-- View tutor profiles and ratings
-- Book tutoring sessions
-- Direct messaging with tutors
+Yes, you can!
 
-### 📅 Deadlines Page (`/deadlines`)
-- Track important dates
-- Set reminders
-- View upcoming deadlines
-- Mark completed tasks
+To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
 
-### 🤖 AI Assistant
-- Floating chat widget
-- Instant study help
-- Subject-specific guidance
-- Available on all pages
+## How to run the app without using Lovable
+make sure you have Node.js installed and npm is also installed. 
+you check by going to cmd and typing npm -v and node -v if both show numbers then you are good
+after you open the vs code and on the terminal type in or go to the directory of the project
+the after you type npm run dev. 
+you should get a link starting with Local:.... just coppy that link and paste in on your browser then click enter. You should be good to go. Yes it is long but you only need to do this process once and it will update everything on the site in real time :).
 
-## 🎯 Target Audience
 
-- **Matric rewrite students** - Adults seeking to improve their matric results
-- **Adult learners** - Individuals returning to education
-- **Parents/Guardians** - Supporting their children's education
-- **Tutors** - Educators looking to help students
-- **Education centers** - Institutions offering matric rewrite programs
-
-## 🌍 South African Context
-
-This platform is specifically designed for the South African education system:
-
-- **NSC (National Senior Certificate)** - Matric qualification
-- **Provincial coverage** - All 9 provinces included
-- **Local languages** - Support for English and Afrikaans
-- **Currency** - South African Rand (ZAR)
-- **Education system** - Aligned with Department of Basic Education standards
-
-## 🚀 Future Enhancements
-
-### Phase 2 Features
-- **Mobile app** - React Native version
-- **Offline support** - Download resources for offline use
-- **Video calling** - Integrated tutoring sessions
-- **Payment integration** - Pay for premium resources
-- **Progress analytics** - Detailed learning insights
-
-### Phase 3 Features
-- **AI-powered recommendations** - Personalized study plans
-- **Community features** - Student forums and study groups
-- **Gamification** - Points, badges, and achievements
-- **Integration with LMS** - Connect with learning management systems
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our contributing guidelines:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Lovable UI** - For the beautiful component library
-- **Firebase** - For the robust backend infrastructure
-- **South African Education Community** - For insights and feedback
-- **Open Source Community** - For the amazing tools and libraries
-
-## 📞 Support
-
-- **Email**: support@gradeup.co.za
-- **Documentation**: [Firebase Setup Guide](./FIREBASE_SETUP.md)
-- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
-
-## 🎉 Hackathon Note
-
-This project was created for the **AI in Action Hackathon** focusing on **Access to Education**. The platform addresses the critical need for accessible matric rewrite opportunities in South Africa, combining modern technology with educational support to help students achieve their academic goals.
-
----
-
-**Made with ❤️ for South African students pursuing their educational dreams.**

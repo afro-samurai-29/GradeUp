@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,24 +7,65 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { BookOpen, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+import { auth, db } from '../firebaseConfig';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate login process
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      // Sign in with Firebase Authentication
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Get user data from Firestore to determine role
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const userRole = userData.role;
+
+        toast({
+          title: "Welcome back!",
+          description: `You have successfully signed in to GradeUp as a ${userRole}.`,
+        });
+
+        // Navigate to appropriate dashboard based on role
+        if (userRole === 'learner') {
+          navigate('/student/dashboard');
+        } else if (userRole === 'tutor') {
+          navigate('/tutor/dashboard');
+        } else if (userRole === 'admin') {
+          navigate('/admin/dashboard');
+        } else {
+          // Default fallback to general dashboard
+          navigate('/dashboard');
+        }
+      } else {
+        toast({
+          title: "Login failed",
+          description: "User data not found. Please contact support.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
       toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in to GradeUp.",
+        title: "Login failed",
+        description: error.message || "Invalid email or password.",
+        variant: "destructive",
       });
-    }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

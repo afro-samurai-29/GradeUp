@@ -12,7 +12,13 @@ import StudyResourcesPage from "./pages/StudyResourcesPage";
 import TutorNetworkPage from "./pages/TutorNetworkPage";
 import DeadlineTrackerPage from "./pages/DeadlineTrackerPage";
 import NotFound from "./pages/NotFound";
-import AIChatbox from "./components/AIChatbox";
+import AIChatbox from './components/AIChatbox';
+
+
+// Role-based Dashboard Components
+import StudentDashboard from "./StudentDashboard";
+import TutorDashboard from "./TutorDashboard";
+import AdminDashboard from "./AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -27,10 +33,12 @@ const App = () => (
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/centers" element={<RewriteCentersPage />} />
-          <Route path="/resources" element={<StudyResourcesPage />} />
-          <Route path="/tutors" element={<TutorNetworkPage />} />
-          <Route path="/deadlines" element={<DeadlineTrackerPage />} />
+          
+          {/* Role-based Dashboard Routes */}
+          <Route path="/student/dashboard" element={<StudentDashboard />} />
+          <Route path="/tutor/dashboard" element={<TutorDashboard />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
         <AIChatbox />
