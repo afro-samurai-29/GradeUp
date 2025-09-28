@@ -29,6 +29,7 @@ import AdminContent from "./AdminContent";
 import AdminAnalytics from "./AdminAnalytics";
 import AdminSupport from "./AdminSupport";
 import AdminProfile from "./AdminProfile";
+import AdminNewNote from "./AdminNewNote";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,7 @@ const App = () => (
           <Route path="/admin/analytics" element={<AdminAnalytics />} />
           <Route path="/admin/support" element={<AdminSupport />} />
           <Route path="/admin/profile" element={<AdminProfile />} />
+          <Route path="/admin/new-note" element={<AdminNewNote />} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

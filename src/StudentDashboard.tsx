@@ -88,6 +88,7 @@ const StudentDashboard = () => {
         </div>
 
         {/* Quick Actions */}
+        {/* Quick Actions (removed '+ New Note' button) */}
         <Card>
           <CardHeader>
             <CardTitle className="text-foreground">Quick Actions</CardTitle>

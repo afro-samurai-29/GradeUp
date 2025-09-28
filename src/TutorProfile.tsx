@@ -23,20 +23,20 @@ const TutorProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-purple-600 text-white p-6">
+      <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link to="/tutor" className="hover:bg-purple-700 p-2 rounded-lg transition-colors">
+            <Link to="/tutor" className="hover:bg-forest-secondary p-2 rounded-lg transition-colors">
               <ArrowLeft className="h-6 w-6" />
             </Link>
             <div>
               <h1 className="text-3xl font-bold">My Tutor Profile</h1>
-              <p className="text-purple-100">Manage your qualifications and availability</p>
+              <p className="text-forest-light">Manage your qualifications and availability</p>
             </div>
           </div>
           <Button 
             onClick={() => setIsEditing(!isEditing)}
-            className="bg-white text-purple-600 hover:bg-purple-50"
+            className="bg-white text-forest-primary hover:bg-forest-light"
           >
             {isEditing ? <Save className="h-4 w-4 mr-2" /> : <Edit className="h-4 w-4 mr-2" />}
             {isEditing ? 'Save' : 'Edit'}
@@ -83,9 +83,9 @@ const TutorProfile = () => {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2 mb-4">
-              <Badge className="bg-blue-100 text-blue-800">Mathematics</Badge>
-              <Badge className="bg-green-100 text-green-800">Physical Sciences</Badge>
-              <Badge className="bg-purple-100 text-purple-800">Life Sciences</Badge>
+              <Badge className="bg-forest-light text-forest-primary">Mathematics</Badge>
+              <Badge className="bg-forest-light text-forest-primary">Physical Sciences</Badge>
+              <Badge className="bg-forest-light text-forest-primary">Life Sciences</Badge>
               {isEditing && <Badge variant="outline" className="cursor-pointer"><Plus className="h-3 w-3 mr-1" />Add Subject</Badge>}
             </div>
           </CardContent>
