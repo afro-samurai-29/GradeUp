@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import StudentNavbar from '@/components/StudentNavbar';
+import StudentLayout from '@/components/StudentLayout';
 import { 
   ArrowLeft, 
   Download, 
@@ -151,7 +151,7 @@ const StudentPastPapers = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <StudentLayout>image.png
       {/* Header */}
       <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto">
@@ -170,8 +170,6 @@ const StudentPastPapers = () => {
           </div>
         </div>
       </div>
-
-      <StudentNavbar />
 
       <div className="max-w-7xl mx-auto p-6">
         {/* Search and Filters */}
@@ -339,7 +337,7 @@ const StudentPastPapers = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </StudentLayout>
   );
 };
 

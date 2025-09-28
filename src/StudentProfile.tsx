@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import StudentNavbar from '@/components/StudentNavbar';
+import StudentLayout from '@/components/StudentLayout';
 import { 
   ArrowLeft, 
   User, 
@@ -79,7 +79,7 @@ const StudentProfile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <StudentLayout>
       {/* Header */}
       <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -121,8 +121,6 @@ const StudentProfile = () => {
           )}
         </div>
       </div>
-
-      <StudentNavbar />
 
       <div className="max-w-4xl mx-auto p-6 space-y-6">
         {/* Personal Information */}
@@ -339,7 +337,7 @@ const StudentProfile = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </StudentLayout>
   );
 };
 

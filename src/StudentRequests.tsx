@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import StudentNavbar from '@/components/StudentNavbar';
+import StudentLayout from '@/components/StudentLayout';
 import { 
   ArrowLeft, 
   Plus, 
@@ -32,7 +32,7 @@ const StudentRequests = () => {
   const subjects = ['Mathematics', 'English', 'Physical Sciences', 'Life Sciences', 'History', 'Geography'];
 
   return (
-    <div className="min-h-screen bg-background">
+    <StudentLayout>
       {/* Header */}
       <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto">
@@ -41,7 +41,7 @@ const StudentRequests = () => {
               <h1 className="text-3xl font-bold">Help Requests</h1>
               <p className="text-forest-light mt-1">Get help from volunteer tutors</p>
             </div>
-            <Button 
+            <Button
               onClick={() => setShowNewRequest(true)}
               className="bg-white text-forest-primary hover:bg-forest-light shadow-lg"
             >
@@ -51,8 +51,6 @@ const StudentRequests = () => {
           </div>
         </div>
       </div>
-
-      <StudentNavbar />
 
       <div className="max-w-7xl mx-auto p-6">
         {/* Search Bar */}
@@ -353,7 +351,7 @@ const StudentRequests = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </StudentLayout>
   );
 };
 

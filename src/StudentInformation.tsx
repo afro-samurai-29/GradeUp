@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import StudentNavbar from '@/components/StudentNavbar';
+import StudentLayout from '@/components/StudentLayout';
 import { 
   ArrowLeft, 
   Info, 
@@ -20,7 +20,7 @@ import {
 
 const StudentInformation = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <StudentLayout>
       {/* Header */}
       <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -35,8 +35,6 @@ const StudentInformation = () => {
           </div>
         </div>
       </div>
-
-      <StudentNavbar />
 
       <div className="max-w-6xl mx-auto p-6 space-y-6">
         {/* About GradeUP */}
@@ -231,7 +229,7 @@ const StudentInformation = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </StudentLayout>
   );
 };
 
