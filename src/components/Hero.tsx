@@ -27,7 +27,7 @@ const Hero = () => {
       {/* Hero Section */}
       <section className="relative py-20 lg:py-32 overflow-hidden">
         <div className="absolute inset-0 gradient-sage opacity-60"></div>
-        
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Content */}
@@ -40,7 +40,7 @@ const Hero = () => {
                   </span>
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-2xl">
-                  Transform your academic journey with personalized tutoring, AI-powered study plans, 
+                  Transform your academic journey with personalized tutoring, AI-powered study plans,
                   and a supportive community. Get the grades you deserve.
                 </p>
               </div>
@@ -53,8 +53,8 @@ const Hero = () => {
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link to="/resources">
-                    Explore Resources
+                  <Link to="/centers">
+                    Find Centers
                   </Link>
                 </Button>
               </div>
@@ -99,7 +99,7 @@ const Hero = () => {
               Why Choose GradeUp?
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Our comprehensive platform combines cutting-edge technology with human expertise 
+              Our comprehensive platform combines cutting-edge technology with human expertise
               to help you achieve your academic goals.
             </p>
           </div>

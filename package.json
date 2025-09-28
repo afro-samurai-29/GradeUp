@@ -45,6 +45,8 @@
     "cmdk": "^1.1.1",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.6.0",
+    "firebase": "^12.3.0",
+    "firebase-admin": "^13.5.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.462.0",
     "next-themes": "^0.3.0",
@@ -79,5 +81,18 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
     "vite": "^5.4.19"
-  }
+  },
+  "description": "A comprehensive platform designed to help South African students access matric rewrite opportunities, find study resources, connect with tutors, and track important deadlines.",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/afro-samurai-29/GradeUp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/afro-samurai-29/GradeUp/issues"
+  },
+  "homepage": "https://github.com/afro-samurai-29/GradeUp#readme"
 }

@@ -1,0 +1,161 @@
+{
+  "centers": {
+    "center1": {
+      "name": "Johannesburg Rewrite Center",
+      "province": "Gauteng",
+      "address": "123 Main St, Johannesburg",
+      "contact": "+27 82 123 4567"
+    },
+    "center2": {
+      "name": "Cape Town Adult Learning Hub",
+      "province": "Western Cape",
+      "address": "45 Long Street, Cape Town",
+      "contact": "+27 71 234 5678"
+    }
+  },
+  "deadlines": {
+    "deadline1": {
+      "exam": "Matric Rewrite June 2025",
+      "date": "2025-04-15",
+      "applicationDeadline": "2025-03-01"
+    },
+    "deadline2": {
+      "exam": "Matric Rewrite November 2025",
+      "date": "2025-10-15",
+      "applicationDeadline": "2025-08-31"
+    }
+  },
+  "resources": {
+    "mathematics": {
+      "name": "Mathematics",
+      "grade": "12",
+      "description": "Matric Mathematics resources",
+      "notes": {
+        "note1": {
+          "title": "Algebra Basics",
+          "format": "PDF",
+          "url": "https://example.com/algebra.pdf",
+          "uploadedAt": "2025-09-01T12:00:00Z"
+        }
+      },
+      "pastPapers": {
+        "paper1": {
+          "year": 2023,
+          "exam": "June",
+          "subject": "Mathematics",
+          "url": "https://example.com/maths-2023-june.pdf"
+        },
+        "paper2": {
+          "year": 2024,
+          "exam": "November",
+          "subject": "Mathematics",
+          "url": "https://example.com/maths-2024-nov.pdf"
+        }
+      },
+      "questions": {
+        "q1": {
+          "topic": "Calculus",
+          "difficulty": "Medium",
+          "questionText": "Differentiate x² + 3x",
+          "solution": "2x + 3"
+        }
+      },
+      "videos": {
+        "vid1": {
+          "title": "Intro to Trigonometry",
+          "platform": "YouTube",
+          "url": "https://youtube.com/example",
+          "duration": "15:30"
+        }
+      }
+    },
+    "isizulu": {
+      "name": "IsiZulu FAL",
+      "grade": "12",
+      "description": "Matric IsiZulu resources",
+      "notes": {
+        "overview": {
+          "title": "Amabizo (Nouns) – IsiZulu FAL",
+          "topic": "Nouns / Amabizo",
+          "content": "1. Incazelo: Amabizo amagama aqamba abantu, izilwane, izinto, izindawo noma imicabango.\n2. Izigaba Zamabizo: umu-/aba-, isi-/izi-, in-/izin-, ulu-/izin-, uku-.\n3. Amabizoqoqa: isizwe, ibandla, umphakathi.\n4. Ubulili: udadewethu (female), umfowethu (male).\n5. Ubuningi: umuntu → abantu; isihlalo → izihlalo.\n6. Izinciphiso: indlu → indlwana; umfana → umfanyana.\n7. Izikhuliso: indlu → indludlu; umfana → umfanandoda.\n8. Amabizo asuselwa kwezinye izingcezu zenkulumo: ukufunda → umfundi; ubuhle.\n9. Ukusetshenziswa kwezabizwana: Sokukhomba → lo mfana, laba bantu; Soqobo → mina, wena; Senani → bonke, wonke; Sesichasiso → omude, omkhulu.",
+          "videoRef": "/resources/isizulu/videos/amabizo/lesson1"
+        }
+      },
+      "videos": {
+        "lesson1": {
+          "title": "IsiZulu Lesson 1: Amabizo (Nouns)",
+          "url": "https://www.youtube.com/watch?v=yPXD8Uin3DI",
+          "description": "A comprehensive lesson on IsiZulu nouns, covering various topics such as noun classes, collective nouns, gender, plural forms, diminutives, augmentatives, derived nouns, and the use of pronouns.",
+          "duration": "10:15",
+          "uploadedAt": "2025-09-28T12:00:00Z"
+        }
+      },
+      "questions": {
+        "question1": {
+          "topic": "Amabizo (Nouns)",
+          "questionText": "Kuyini ibizo?",
+          "options": [
+            "Igama elichaza isenzo",
+            "Igama elichaza umuntu, into, indawo noma umqondo",
+            "Igama elichaza umbala",
+            "Igama elichaza isikhathi"
+          ],
+          "correctAnswer": "Igama elichaza umuntu, into, indawo noma umqondo",
+          "difficulty": "Easy",
+          "videoRef": "/resources/isizulu/videos/amabizo/lesson1"
+        },
+        "question2": {
+          "topic": "Amabizo (Nouns)",
+          "questionText": "Yimaphi amabizo akwiqembu le-umu-/aba-?",
+          "options": [
+            "umuntu/abantu",
+            "isihlalo/izihlalo",
+            "inja/izinja",
+            "ulimi/izilimi"
+          ],
+          "correctAnswer": "umuntu/abantu",
+          "difficulty": "Easy",
+          "videoRef": "/resources/isizulu/videos/amabizo/lesson1"
+        },
+        "question3": {
+          "topic": "Amabizo (Nouns)",
+          "questionText": "Yiliphi ibizo eliyibizoqoqo (collective noun)?",
+          "options": ["umfana", "isihlalo", "isizwe", "inja"],
+          "correctAnswer": "isizwe",
+          "difficulty": "Easy",
+          "videoRef": "/resources/isizulu/videos/amabizo/lesson1"
+        },
+        "question4": {
+          "topic": "Amabizo (Nouns)",
+          "questionText": "Guqula ibizo: isihlalo → ?",
+          "options": ["abantu", "izihlalo", "abahlalo", "imihlalo"],
+          "correctAnswer": "izihlalo",
+          "difficulty": "Easy",
+          "videoRef": "/resources/isizulu/videos/amabizo/lesson1"
+        },
+        "question5": {
+          "topic": "Amabizo (Nouns)",
+          "questionText": "Yisiphi isabizwana sokukhomba kule nkulumo: “Laba bafana bayadlala.”",
+          "options": ["mina", "wonke", "laba", "bona"],
+          "correctAnswer": "laba",
+          "difficulty": "Easy",
+          "videoRef": "/resources/isizulu/videos/amabizo/lesson1"
+        }
+      }
+    }
+  },
+  "tutors": {
+    "tutor1": {
+      "name": "Thandi Nkosi",
+      "subject": "Mathematics",
+      "contact": "thandi.tutor@example.com",
+      "availability": "Weekends"
+    },
+    "tutor2": {
+      "name": "John Dlamini",
+      "subject": "English",
+      "contact": "john.tutor@example.com",
+      "availability": "Weekdays"
+    }
+  }
+}
