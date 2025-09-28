@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,14 +17,20 @@ import {
   CheckCircle,
   Heart,
   Star,
-  Eye
+  Eye,
+  LogOut
 } from 'lucide-react';
 import { db } from './firebase';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [notes, setNotes] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
+
+  const handleLogout = () => {
+    navigate('/');
+  };
 
   const quickActions = [
     { icon: Users, label: "Manage Users", href: "/admin/users", color: "bg-forest-primary", description: "Handle student and tutor accounts" },
@@ -58,8 +64,21 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-background">
       <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-forest-light">Manage platform content, users, and analytics</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
+              <p className="text-forest-light">Manage platform content, users, and analytics</p>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="text-white border-white hover:bg-white hover:text-forest-primary"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
       </div>
 

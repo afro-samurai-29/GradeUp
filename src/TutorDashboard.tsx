@@ -16,7 +16,8 @@ import {
   BookOpen,
   Heart,
   Award,
-  TrendingUp
+  TrendingUp,
+  LogOut
 } from 'lucide-react';
 
 const TutorDashboard = () => {
