@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,10 +13,17 @@ import {
   BookOpen,
   Heart,
   Award,
-  TrendingUp
+  TrendingUp,
+  LogOut
 } from 'lucide-react';
 
 const TutorDashboard = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    navigate('/');
+  };
+
   const quickActions = [
     { icon: MessageCircle, label: "Help Requests", href: "/tutor/requests", color: "bg-forest-primary", description: "View and respond to student questions", count: "5 pending" },
     { icon: User, label: "My Profile", href: "/tutor/profile", color: "bg-forest-primary", description: "Manage your tutoring profile and subjects" },
@@ -36,6 +43,15 @@ const TutorDashboard = () => {
             <div className="text-right">
               <div className="text-2xl font-bold">47</div>
               <div className="text-sm text-forest-light">Students Helped</div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="mt-4 text-white border-white hover:bg-white hover:text-forest-primary"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
             </div>
           </div>
         </div>
