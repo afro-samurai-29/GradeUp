@@ -34,16 +34,16 @@ const StudentDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
+      <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Student Dashboard</h1>
-              <p className="text-green-100 mt-1">Welcome back! Ready to continue your learning journey?</p>
+              <p className="text-forest-light mt-1">Welcome back! Ready to continue your learning journey?</p>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold">4.2</div>
-              <div className="text-sm text-green-100">Average Grade</div>
+              <div className="text-sm text-forest-light">Average Grade</div>
             </div>
           </div>
         </div>
@@ -56,7 +56,7 @@ const StudentDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <CardContent className="p-6 text-center">
-              <BookOpen className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+              <BookOpen className="h-8 w-8 text-forest-primary mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-800">12</div>
               <div className="text-sm text-gray-600">Study Notes</div>
             </CardContent>
@@ -64,7 +64,7 @@ const StudentDashboard = () => {
           
           <Card>
             <CardContent className="p-6 text-center">
-              <FileText className="h-8 w-8 text-green-600 mx-auto mb-2" />
+              <FileText className="h-8 w-8 text-forest-primary mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-800">8</div>
               <div className="text-sm text-gray-600">Past Papers</div>
             </CardContent>
@@ -72,7 +72,7 @@ const StudentDashboard = () => {
           
           <Card>
             <CardContent className="p-6 text-center">
-              <MessageCircle className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+              <MessageCircle className="h-8 w-8 text-forest-primary mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-800">3</div>
               <div className="text-sm text-gray-600">Active Requests</div>
             </CardContent>
@@ -80,7 +80,7 @@ const StudentDashboard = () => {
           
           <Card>
             <CardContent className="p-6 text-center">
-              <Clock className="h-8 w-8 text-orange-600 mx-auto mb-2" />
+              <Clock className="h-8 w-8 text-forest-primary mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-800">24h</div>
               <div className="text-sm text-gray-600">Study Time</div>
             </CardContent>
@@ -90,7 +90,7 @@ const StudentDashboard = () => {
         {/* Quick Actions */}
         <Card>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle className="text-foreground">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -98,14 +98,14 @@ const StudentDashboard = () => {
                 <Link
                   key={index}
                   to={action.href}
-                  className="block p-6 rounded-lg border hover:shadow-md transition-all group hover:border-blue-500"
+                  className="block p-6 rounded-lg border hover:shadow-md transition-all group hover:border-forest-light"
                 >
                   <div className="flex items-center space-x-4">
-                    <div className={`${action.color} p-3 rounded-full text-white group-hover:scale-110 transition-transform`}>
+                    <div className={`bg-forest-primary p-3 rounded-full text-white group-hover:scale-110 transition-transform`}>
                       <action.icon className="h-6 w-6" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg group-hover:text-blue-600 transition-colors">
+                      <h3 className="font-semibold text-lg group-hover:text-forest-primary transition-colors">
                         {action.label}
                       </h3>
                       <p className="text-sm text-muted-foreground mt-1">

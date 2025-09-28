@@ -88,16 +88,16 @@ const StudentNotes = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
+      <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">My Notes</h1>
-              <p className="text-green-100 mt-1">Interactive note-taking with math support</p>
+              <p className="text-forest-light mt-1">Interactive note-taking with math support</p>
             </div>
             <Button 
               onClick={() => setIsCreating(true)}
-              className="bg-white text-green-600 hover:bg-green-50 shadow-lg"
+              className="bg-white text-forest-primary hover:bg-forest-light shadow-lg"
             >
               <Plus className="h-4 w-4 mr-2" />
               New Note
@@ -138,9 +138,9 @@ const StudentNotes = () => {
 
         {/* Create New Note Modal */}
         {isCreating && (
-          <Card className="mb-6 border-2 border-blue-500">
+          <Card className="mb-6 border-2 border-forest-accent">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-blue-700">Create New Note</CardTitle>
+              <CardTitle className="text-forest-primary">Create New Note</CardTitle>
               <Button 
                 variant="ghost" 
                 size="sm"
@@ -179,7 +179,7 @@ const StudentNotes = () => {
                 rows={6}
               />
               <div className="flex gap-2">
-                <Button onClick={handleCreateNote} className="bg-blue-600 hover:bg-blue-700">
+                <Button onClick={handleCreateNote} className="bg-forest-primary hover:bg-forest-secondary">
                   <Save className="h-4 w-4 mr-2" />
                   Save Note
                 </Button>

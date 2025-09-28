@@ -153,16 +153,16 @@ const StudentPastPapers = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
+      <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Past Papers</h1>
-              <p className="text-green-100 mt-1">Browse and download previous exam papers</p>
+              <p className="text-forest-light mt-1">Browse and download previous exam papers</p>
             </div>
             <Button 
               onClick={() => setShowFilters(!showFilters)}
-              className="bg-white text-green-600 hover:bg-green-50 shadow-lg"
+              className="bg-white text-forest-primary hover:bg-forest-light shadow-lg"
             >
               <Filter className="h-4 w-4 mr-2" />
               Filters
@@ -302,10 +302,10 @@ const StudentPastPapers = () => {
                     
                     {/* Action Buttons */}
                     <div className="flex gap-2">
-                      <Button 
-                        onClick={() => handleDownload(paper.id)}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700"
-                      >
+                    <Button 
+                      onClick={() => handleDownload(paper.id)}
+                      className="flex-1 bg-forest-primary hover:bg-forest-secondary"
+                    >
                         <Download className="h-4 w-4 mr-2" />
                         Download
                       </Button>
