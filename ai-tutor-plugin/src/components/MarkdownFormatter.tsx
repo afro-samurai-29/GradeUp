@@ -153,10 +153,11 @@ export function MarkdownFormatter({ content, className = "" }: MarkdownFormatter
               .map(line => line.trim().slice(2));
             
             return (
-              <ul key={pIndex} className="list-disc list-inside space-y-1 ml-4">
+              <ul key={pIndex} className="space-y-2 ml-2">
                 {listItems.map((item, itemIndex) => (
-                  <li key={itemIndex} className="text-gray-700 dark:text-gray-300">
-                    {processInlineMarkdown(item)}
+                  <li key={itemIndex} className="flex items-start gap-2 text-gray-700 dark:text-gray-300">
+                    <span className="text-blue-600 dark:text-blue-400 font-bold mt-1 flex-shrink-0">•</span>
+                    <span className="leading-relaxed">{processInlineMarkdown(item)}</span>
                   </li>
                 ))}
               </ul>
@@ -171,10 +172,11 @@ export function MarkdownFormatter({ content, className = "" }: MarkdownFormatter
               .map(line => line.trim().replace(/^\d+\.\s/, ''));
             
             return (
-              <ol key={pIndex} className="list-decimal list-inside space-y-1 ml-4">
+              <ol key={pIndex} className="space-y-2 ml-2">
                 {listItems.map((item, itemIndex) => (
-                  <li key={itemIndex} className="text-gray-700 dark:text-gray-300">
-                    {processInlineMarkdown(item)}
+                  <li key={itemIndex} className="flex items-start gap-2 text-gray-700 dark:text-gray-300">
+                    <span className="text-blue-600 dark:text-blue-400 font-bold mt-1 flex-shrink-0 min-w-[1.5rem]">{itemIndex + 1}.</span>
+                    <span className="leading-relaxed">{processInlineMarkdown(item)}</span>
                   </li>
                 ))}
               </ol>
@@ -183,7 +185,7 @@ export function MarkdownFormatter({ content, className = "" }: MarkdownFormatter
           
           // Regular paragraph
           return (
-            <p key={pIndex} className="text-gray-700 dark:text-gray-300 leading-relaxed">
+            <p key={pIndex} className="text-gray-800 dark:text-gray-200 leading-relaxed">
               {processInlineMarkdown(paragraph)}
             </p>
           );
@@ -222,11 +224,11 @@ export function MarkdownFormatter({ content, className = "" }: MarkdownFormatter
       // Process regular text with markdown
       let processedText = part;
       
-      // Process bold text
-      processedText = processedText.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900 dark:text-gray-100">$1</strong>');
+      // Process bold text - only if properly formatted
+      processedText = processedText.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold text-gray-900 dark:text-gray-100 bg-yellow-50 dark:bg-yellow-900/20 px-1 py-0.5 rounded">$1</strong>');
       
-      // Process italic text
-      processedText = processedText.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
+      // Process italic text - only if properly formatted  
+      processedText = processedText.replace(/\*([^*]+)\*/g, '<em class="italic text-gray-800 dark:text-gray-200 font-medium">$1</em>');
       
       // Process inline code
       processedText = processedText.replace(/`([^`]+)`/g, '<code class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-red-600 dark:text-red-400">$1</code>');
@@ -239,8 +241,10 @@ export function MarkdownFormatter({ content, className = "" }: MarkdownFormatter
   };
 
   return (
-    <div className={`prose prose-sm max-w-none ${className}`}>
-      {processContent(content)}
+    <div className={`max-w-none ${className}`} style={{ lineHeight: '1.7', fontSize: '14px' }}>
+      <div className="space-y-4 text-gray-800 dark:text-gray-200">
+        {processContent(content)}
+      </div>
     </div>
   );
 }
