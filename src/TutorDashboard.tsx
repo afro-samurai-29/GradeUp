@@ -228,8 +228,8 @@ const TutorDashboard = () => {
             <div className="text-right">
               <div className="text-2xl font-bold">{stats.studentsHelped}</div>
               <div className="text-sm text-blue-100">Students Helped</div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 className="mt-4 text-black border-white bg-white hover:bg-gray-100 hover:text-black"
                 onClick={handleLogout}
@@ -365,7 +365,7 @@ const TutorDashboard = () => {
         <div className="mb-4 p-4 bg-gray-100 rounded-lg">
           <h3 className="font-semibold mb-2">Debug Info:</h3>
           <p>Past Papers: {pastPapers.length} items</p>
-          <p>Study Notes: {studyNotes.length} items</p>
+          <p>Notes: {studyNotes.length} items</p>
           <p>Videos: {videos.length} items</p>
           <p>Loading: {loading ? 'Yes' : 'No'}</p>
         </div>
@@ -387,8 +387,8 @@ const TutorDashboard = () => {
                     <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
                   </div>
                 ) : pastPapers.length > 0 ? (
-                  pastPapers.map((paper) => (
-                    <div key={paper.id} className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  pastPapers.map((paper, index) => (
+                    <div key={`past-paper-${paper.subjectName}-${paper.id}-${index}`} className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                       <div className="flex items-center justify-between">
                         <div>
                           <h4 className="font-medium text-sm">{paper.title || `Past Paper ${paper.year}`}</h4>
@@ -412,12 +412,12 @@ const TutorDashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Study Notes */}
+          {/* Notes */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <BookOpen className="h-5 w-5 mr-2 text-green-500" />
-                Study Notes
+                Notes
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -428,8 +428,8 @@ const TutorDashboard = () => {
                     <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
                   </div>
                 ) : studyNotes.length > 0 ? (
-                  studyNotes.map((note) => (
-                    <div key={note.id} className="p-3 bg-green-50 rounded-lg border border-green-200">
+                  studyNotes.map((note, index) => (
+                    <div key={`study-note-${note.subjectName}-${note.id}-${index}`} className="p-3 bg-green-50 rounded-lg border border-green-200">
                       <div className="flex items-center justify-between">
                         <div>
                           <h4 className="font-medium text-sm">{note.title}</h4>
@@ -469,8 +469,8 @@ const TutorDashboard = () => {
                     <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
                   </div>
                 ) : videos.length > 0 ? (
-                  videos.map((video) => (
-                    <div key={video.id} className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                  videos.map((video, index) => (
+                    <div key={`video-${video.subjectName}-${video.id}-${index}`} className="p-3 bg-purple-50 rounded-lg border border-purple-200">
                       <div className="flex items-center justify-between">
                         <div>
                           <h4 className="font-medium text-sm">{video.title}</h4>

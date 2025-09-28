@@ -18,17 +18,18 @@ import {
     Calendar,
     Users
 } from 'lucide-react';
-import { getStudyResources } from '@/lib/firestore';
-import { StudyResource } from '@/types/database';
+import { db } from '../firebase';
+import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import Header from '@/components/Header';
 
 const StudyResourcesPage = () => {
-    const [resources, setResources] = useState<StudyResource[]>([]);
-    const [filteredResources, setFilteredResources] = useState<StudyResource[]>([]);
+    const [pastPapers, setPastPapers] = useState([]);
+    const [studyNotes, setStudyNotes] = useState([]);
+    const [filteredPastPapers, setFilteredPastPapers] = useState([]);
+    const [filteredStudyNotes, setFilteredStudyNotes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedSubject, setSelectedSubject] = useState('all');
-    const [selectedType, setSelectedType] = useState('all');
     const [selectedDifficulty, setSelectedDifficulty] = useState('all');
     const [showFreeOnly, setShowFreeOnly] = useState(false);
 
@@ -39,11 +40,8 @@ const StudyResourcesPage = () => {
     ];
 
     const resourceTypes = [
-        { value: 'past_paper', label: 'Past Papers', icon: FileText },
-        { value: 'study_guide', label: 'Study Guides', icon: BookOpen },
-        { value: 'video', label: 'Video Lessons', icon: Video },
-        { value: 'practice_test', label: 'Practice Tests', icon: FileText },
-        { value: 'textbook', label: 'Textbooks', icon: BookOpen },
+        { value: 'past_papers', label: 'Past Papers', icon: FileText },
+        { value: 'study_notes', label: 'Study Guides', icon: BookOpen },
     ];
 
     const difficulties = [
@@ -58,17 +56,47 @@ const StudyResourcesPage = () => {
 
     useEffect(() => {
         filterResources();
-    }, [resources, searchTerm, selectedSubject, selectedType, selectedDifficulty, showFreeOnly]);
+    }, [pastPapers, studyNotes, searchTerm, selectedSubject, selectedDifficulty, showFreeOnly]);
 
     const loadResources = async () => {
         try {
             setLoading(true);
-            const data = await getStudyResources(
-                selectedSubject !== 'all' ? selectedSubject : undefined,
-                selectedType !== 'all' ? selectedType : undefined,
-                showFreeOnly ? true : undefined
-            );
-            setResources(data);
+
+            // Get subjects first
+            const subjectsSnapshot = await getDocs(collection(db, 'resources'));
+            const subjects = subjectsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+
+            // Fetch past papers from all subjects
+            const allPastPapers = [];
+            const allNotes = [];
+
+            for (const subject of subjects) {
+                // Get past papers
+                const pastPapersSnapshot = await getDocs(query(
+                    collection(db, 'resources', subject.id, 'pastPapers'),
+                    orderBy('createdAt', 'desc')
+                ));
+                pastPapersSnapshot.docs.forEach(doc => {
+                    allPastPapers.push({ id: doc.id, subjectName: subject.name, ...doc.data() });
+                });
+
+                // Get notes
+                const notesSnapshot = await getDocs(query(
+                    collection(db, 'resources', subject.id, 'notes'),
+                    orderBy('createdAt', 'desc')
+                ));
+                notesSnapshot.docs.forEach(doc => {
+                    allNotes.push({ id: doc.id, subjectName: subject.name, ...doc.data() });
+                });
+            }
+
+            // Sort and set data
+            const sortedPastPapers = allPastPapers.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            const sortedNotes = allNotes.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+
+            setPastPapers(sortedPastPapers);
+            setStudyNotes(sortedNotes);
         } catch (error) {
             console.error('Error loading resources:', error);
         } finally {
@@ -77,67 +105,45 @@ const StudyResourcesPage = () => {
     };
 
     const filterResources = () => {
-        let filtered = resources;
-
+        // Filter past papers
+        let filteredPapers = pastPapers;
         if (searchTerm) {
-            filtered = filtered.filter(resource =>
-                resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                resource.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                resource.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+            filteredPapers = filteredPapers.filter(paper =>
+                (paper.title || `Past Paper ${paper.year}`).toLowerCase().includes(searchTerm.toLowerCase()) ||
+                paper.subjectName.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
-
         if (selectedSubject && selectedSubject !== 'all') {
-            filtered = filtered.filter(resource => resource.subject === selectedSubject);
+            filteredPapers = filteredPapers.filter(paper => paper.subjectName === selectedSubject);
         }
-
-        if (selectedType && selectedType !== 'all') {
-            filtered = filtered.filter(resource => resource.type === selectedType);
-        }
-
         if (selectedDifficulty && selectedDifficulty !== 'all') {
-            filtered = filtered.filter(resource => resource.difficulty === selectedDifficulty);
+            filteredPapers = filteredPapers.filter(paper => paper.difficulty === selectedDifficulty);
         }
-
         if (showFreeOnly) {
-            filtered = filtered.filter(resource => resource.isFree);
+            filteredPapers = filteredPapers.filter(paper => paper.isFree);
         }
+        setFilteredPastPapers(filteredPapers);
 
-        setFilteredResources(filtered);
-    };
-
-    const getResourceIcon = (type: string) => {
-        const typeConfig = resourceTypes.find(t => t.value === type);
-        return typeConfig ? typeConfig.icon : FileText;
-    };
-
-    const getResourceTypeLabel = (type: string) => {
-        const typeConfig = resourceTypes.find(t => t.value === type);
-        return typeConfig ? typeConfig.label : type;
-    };
-
-    const getDifficultyBadge = (difficulty: string) => {
-        const diffConfig = difficulties.find(d => d.value === difficulty);
-        return diffConfig || { label: difficulty, color: 'bg-gray-100 text-gray-800' };
-    };
-
-    const formatDuration = (minutes?: number) => {
-        if (!minutes) return '';
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        if (hours > 0) {
-            return `${hours}h ${mins}m`;
+        // Filter study notes
+        let filteredNotes = studyNotes;
+        if (searchTerm) {
+            filteredNotes = filteredNotes.filter(note =>
+                note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                note.subjectName.toLowerCase().includes(searchTerm.toLowerCase())
+            );
         }
-        return `${mins}m`;
+        if (selectedSubject && selectedSubject !== 'all') {
+            filteredNotes = filteredNotes.filter(note => note.subjectName === selectedSubject);
+        }
+        if (selectedDifficulty && selectedDifficulty !== 'all') {
+            filteredNotes = filteredNotes.filter(note => note.difficulty === selectedDifficulty);
+        }
+        if (showFreeOnly) {
+            filteredNotes = filteredNotes.filter(note => note.isFree);
+        }
+        setFilteredStudyNotes(filteredNotes);
     };
 
-    const groupedResources = filteredResources.reduce((acc, resource) => {
-        if (!acc[resource.type]) {
-            acc[resource.type] = [];
-        }
-        acc[resource.type].push(resource);
-        return acc;
-    }, {} as Record<string, StudyResource[]>);
 
     return (
         <div className="min-h-screen bg-background">
@@ -166,7 +172,7 @@ const StudyResourcesPage = () => {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                             <div className="md:col-span-2">
                                 <Input
                                     placeholder="Search resources, topics, or keywords..."
@@ -183,19 +189,6 @@ const StudyResourcesPage = () => {
                                     {subjects.map(subject => (
                                         <SelectItem key={subject} value={subject}>
                                             {subject}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <Select value={selectedType} onValueChange={setSelectedType}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="All Types" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Types</SelectItem>
-                                    {resourceTypes.map(type => (
-                                        <SelectItem key={type.value} value={type.value}>
-                                            {type.label}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -233,235 +226,193 @@ const StudyResourcesPage = () => {
                     </div>
                 ) : (
                     <Tabs defaultValue="all" className="space-y-6">
-                        <TabsList className="grid w-full grid-cols-6">
-                            <TabsTrigger value="all">All ({filteredResources.length})</TabsTrigger>
-                            {resourceTypes.map(type => (
-                                <TabsTrigger key={type.value} value={type.value}>
-                                    {type.label} ({groupedResources[type.value]?.length || 0})
-                                </TabsTrigger>
-                            ))}
+                        <TabsList className="grid w-full grid-cols-3">
+                            <TabsTrigger value="all">All ({filteredPastPapers.length + filteredStudyNotes.length})</TabsTrigger>
+                            <TabsTrigger value="past_papers">Past Papers ({filteredPastPapers.length})</TabsTrigger>
+                            <TabsTrigger value="study_notes">Notes ({filteredStudyNotes.length})</TabsTrigger>
                         </TabsList>
 
-                        {resourceTypes.map(type => (
-                            <TabsContent key={type.value} value={type.value} className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {(groupedResources[type.value] || []).map((resource) => {
-                                        const IconComponent = getResourceIcon(resource.type);
-                                        const difficultyBadge = getDifficultyBadge(resource.difficulty);
-
-                                        return (
-                                            <Card key={resource.id} className="card-elegant hover:shadow-lg transition-shadow duration-200">
-                                                <CardHeader>
-                                                    <div className="flex items-start justify-between">
-                                                        <div className="flex items-center gap-2">
-                                                            <IconComponent className="h-5 w-5 text-forest-primary" />
-                                                            <Badge variant="secondary" className="text-xs">
-                                                                {getResourceTypeLabel(resource.type)}
-                                                            </Badge>
-                                                        </div>
-                                                        <Badge className={`text-xs ${difficultyBadge.color}`}>
-                                                            {difficultyBadge.label}
+                        {/* Past Papers Tab */}
+                        <TabsContent value="past_papers" className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredPastPapers.map((paper, index) => (
+                                    <Card key={`past-paper-${paper.subjectName}-${paper.id}-${index}`} className="card-elegant hover:shadow-lg transition-shadow duration-200">
+                                        <CardHeader>
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <FileText className="h-5 w-5 text-blue-500" />
+                                                    <Badge variant="secondary" className="text-xs">
+                                                        Past Paper
+                                                    </Badge>
+                                                </div>
+                                                <Badge className={`text-xs ${paper.difficulty === 'beginner' ? 'bg-green-100 text-green-800' : paper.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                                                    {paper.difficulty || 'General'}
+                                                </Badge>
+                                            </div>
+                                            <CardTitle className="text-lg">{paper.title || `Past Paper ${paper.year}`}</CardTitle>
+                                            <CardDescription className="line-clamp-2">
+                                                {paper.subjectName} • {paper.year}
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="flex items-center gap-2">
+                                                <BookOpen className="h-4 w-4 text-forest-primary" />
+                                                <span className="text-sm font-medium">{paper.subjectName}</span>
+                                                <Badge variant="outline" className="text-xs">
+                                                    {paper.exam || 'NSC'}
+                                                </Badge>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Calendar className="h-4 w-4 text-forest-primary" />
+                                                <span className="text-sm">{paper.year}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    {paper.isFree ? (
+                                                        <Badge className="bg-green-100 text-green-800">
+                                                            Free
                                                         </Badge>
-                                                    </div>
-                                                    <CardTitle className="text-lg">{resource.title}</CardTitle>
-                                                    <CardDescription className="line-clamp-2">
-                                                        {resource.description}
-                                                    </CardDescription>
-                                                </CardHeader>
-                                                <CardContent className="space-y-4">
-                                                    {/* Subject and Grade */}
-                                                    <div className="flex items-center gap-2">
-                                                        <BookOpen className="h-4 w-4 text-forest-primary" />
-                                                        <span className="text-sm font-medium">{resource.subject}</span>
-                                                        <Badge variant="outline" className="text-xs">
-                                                            Grade {resource.grade}
+                                                    ) : (
+                                                        <Badge className="bg-blue-100 text-blue-800">
+                                                            {paper.currency} {paper.price}
                                                         </Badge>
-                                                    </div>
-
-                                                    {/* Duration for videos */}
-                                                    {resource.type === 'video' && resource.duration && (
-                                                        <div className="flex items-center gap-2">
-                                                            <Clock className="h-4 w-4 text-forest-primary" />
-                                                            <span className="text-sm">{formatDuration(resource.duration)}</span>
-                                                        </div>
                                                     )}
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2 pt-2">
+                                                <Button size="sm" className="flex-1">
+                                                    <Download className="h-4 w-4 mr-2" />
+                                                    Download
+                                                </Button>
+                                                <Button size="sm" variant="outline">
+                                                    Preview
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        </TabsContent>
 
-                                                    {/* Year for past papers */}
-                                                    {resource.year && (
-                                                        <div className="flex items-center gap-2">
-                                                            <Calendar className="h-4 w-4 text-forest-primary" />
-                                                            <span className="text-sm">{resource.year}</span>
-                                                        </div>
+                        {/* Notes Tab */}
+                        <TabsContent value="study_notes" className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredStudyNotes.map((note, index) => (
+                                    <Card key={`study-note-${note.subjectName}-${note.id}-${index}`} className="card-elegant hover:shadow-lg transition-shadow duration-200">
+                                        <CardHeader>
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <BookOpen className="h-5 w-5 text-green-500" />
+                                                    <Badge variant="secondary" className="text-xs">
+                                                        Study Guide
+                                                    </Badge>
+                                                </div>
+                                                <Badge className={`text-xs ${note.difficulty === 'beginner' ? 'bg-green-100 text-green-800' : note.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                                                    {note.difficulty || 'General'}
+                                                </Badge>
+                                            </div>
+                                            <CardTitle className="text-lg">{note.title}</CardTitle>
+                                            <CardDescription className="line-clamp-2">
+                                                {note.subjectName} • {note.topic || 'General'}
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="flex items-center gap-2">
+                                                <BookOpen className="h-4 w-4 text-forest-primary" />
+                                                <span className="text-sm font-medium">{note.subjectName}</span>
+                                                <Badge variant="outline" className="text-xs">
+                                                    {note.topic || 'General'}
+                                                </Badge>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    {note.isFree ? (
+                                                        <Badge className="bg-green-100 text-green-800">
+                                                            Free
+                                                        </Badge>
+                                                    ) : (
+                                                        <Badge className="bg-blue-100 text-blue-800">
+                                                            {note.currency} {note.price}
+                                                        </Badge>
                                                     )}
-
-                                                    {/* Download count */}
-                                                    <div className="flex items-center gap-2">
-                                                        <Download className="h-4 w-4 text-forest-primary" />
-                                                        <span className="text-sm">{resource.downloadCount} downloads</span>
-                                                    </div>
-
-                                                    {/* Tags */}
-                                                    <div>
-                                                        <p className="text-sm font-medium mb-2">Topics:</p>
-                                                        <div className="flex flex-wrap gap-1">
-                                                            {resource.tags.slice(0, 3).map((tag, index) => (
-                                                                <Badge key={index} variant="outline" className="text-xs">
-                                                                    {tag}
-                                                                </Badge>
-                                                            ))}
-                                                            {resource.tags.length > 3 && (
-                                                                <Badge variant="outline" className="text-xs">
-                                                                    +{resource.tags.length - 3} more
-                                                                </Badge>
-                                                            )}
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Price */}
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-2">
-                                                            {resource.isFree ? (
-                                                                <Badge className="bg-green-100 text-green-800">
-                                                                    Free
-                                                                </Badge>
-                                                            ) : (
-                                                                <Badge className="bg-blue-100 text-blue-800">
-                                                                    {resource.currency} {resource.price}
-                                                                </Badge>
-                                                            )}
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Action Buttons */}
-                                                    <div className="flex gap-2 pt-2">
-                                                        <Button size="sm" className="flex-1">
-                                                            {resource.type === 'video' ? (
-                                                                <>
-                                                                    <Play className="h-4 w-4 mr-2" />
-                                                                    Watch
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <Download className="h-4 w-4 mr-2" />
-                                                                    Download
-                                                                </>
-                                                            )}
-                                                        </Button>
-                                                        <Button size="sm" variant="outline">
-                                                            Preview
-                                                        </Button>
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
-                                        );
-                                    })}
-                                </div>
-                            </TabsContent>
-                        ))}
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2 pt-2">
+                                                <Button size="sm" className="flex-1">
+                                                    <Download className="h-4 w-4 mr-2" />
+                                                    Download
+                                                </Button>
+                                                <Button size="sm" variant="outline">
+                                                    Preview
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        </TabsContent>
 
                         <TabsContent value="all" className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {filteredResources.map((resource) => {
-                                    const IconComponent = getResourceIcon(resource.type);
-                                    const difficultyBadge = getDifficultyBadge(resource.difficulty);
-
+                                {/* Show all past papers and study notes combined */}
+                                {[...filteredPastPapers, ...filteredStudyNotes].map((item, index) => {
+                                    const isPastPaper = 'year' in item;
                                     return (
-                                        <Card key={resource.id} className="card-elegant hover:shadow-lg transition-shadow duration-200">
+                                        <Card key={`all-${isPastPaper ? 'past-paper' : 'study-note'}-${item.subjectName}-${item.id}-${index}`} className="card-elegant hover:shadow-lg transition-shadow duration-200">
                                             <CardHeader>
                                                 <div className="flex items-start justify-between">
                                                     <div className="flex items-center gap-2">
-                                                        <IconComponent className="h-5 w-5 text-forest-primary" />
+                                                        {isPastPaper ? (
+                                                            <FileText className="h-5 w-5 text-blue-500" />
+                                                        ) : (
+                                                            <BookOpen className="h-5 w-5 text-green-500" />
+                                                        )}
                                                         <Badge variant="secondary" className="text-xs">
-                                                            {getResourceTypeLabel(resource.type)}
+                                                            {isPastPaper ? 'Past Paper' : 'Study Guide'}
                                                         </Badge>
                                                     </div>
-                                                    <Badge className={`text-xs ${difficultyBadge.color}`}>
-                                                        {difficultyBadge.label}
+                                                    <Badge className={`text-xs ${item.difficulty === 'beginner' ? 'bg-green-100 text-green-800' : item.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                                                        {item.difficulty || 'General'}
                                                     </Badge>
                                                 </div>
-                                                <CardTitle className="text-lg">{resource.title}</CardTitle>
+                                                <CardTitle className="text-lg">
+                                                    {isPastPaper ? (item.title || `Past Paper ${item.year}`) : item.title}
+                                                </CardTitle>
                                                 <CardDescription className="line-clamp-2">
-                                                    {resource.description}
+                                                    {item.subjectName} • {isPastPaper ? item.year : (item.topic || 'General')}
                                                 </CardDescription>
                                             </CardHeader>
                                             <CardContent className="space-y-4">
-                                                {/* Subject and Grade */}
                                                 <div className="flex items-center gap-2">
                                                     <BookOpen className="h-4 w-4 text-forest-primary" />
-                                                    <span className="text-sm font-medium">{resource.subject}</span>
+                                                    <span className="text-sm font-medium">{item.subjectName}</span>
                                                     <Badge variant="outline" className="text-xs">
-                                                        Grade {resource.grade}
+                                                        {isPastPaper ? (item.exam || 'NSC') : (item.topic || 'General')}
                                                     </Badge>
                                                 </div>
-
-                                                {/* Duration for videos */}
-                                                {resource.type === 'video' && resource.duration && (
-                                                    <div className="flex items-center gap-2">
-                                                        <Clock className="h-4 w-4 text-forest-primary" />
-                                                        <span className="text-sm">{formatDuration(resource.duration)}</span>
-                                                    </div>
-                                                )}
-
-                                                {/* Year for past papers */}
-                                                {resource.year && (
+                                                {isPastPaper && (
                                                     <div className="flex items-center gap-2">
                                                         <Calendar className="h-4 w-4 text-forest-primary" />
-                                                        <span className="text-sm">{resource.year}</span>
+                                                        <span className="text-sm">{item.year}</span>
                                                     </div>
                                                 )}
-
-                                                {/* Download count */}
-                                                <div className="flex items-center gap-2">
-                                                    <Download className="h-4 w-4 text-forest-primary" />
-                                                    <span className="text-sm">{resource.downloadCount} downloads</span>
-                                                </div>
-
-                                                {/* Tags */}
-                                                <div>
-                                                    <p className="text-sm font-medium mb-2">Topics:</p>
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {resource.tags.slice(0, 3).map((tag, index) => (
-                                                            <Badge key={index} variant="outline" className="text-xs">
-                                                                {tag}
-                                                            </Badge>
-                                                        ))}
-                                                        {resource.tags.length > 3 && (
-                                                            <Badge variant="outline" className="text-xs">
-                                                                +{resource.tags.length - 3} more
-                                                            </Badge>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                                {/* Price */}
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-2">
-                                                        {resource.isFree ? (
+                                                        {item.isFree ? (
                                                             <Badge className="bg-green-100 text-green-800">
                                                                 Free
                                                             </Badge>
                                                         ) : (
                                                             <Badge className="bg-blue-100 text-blue-800">
-                                                                {resource.currency} {resource.price}
+                                                                {item.currency} {item.price}
                                                             </Badge>
                                                         )}
                                                     </div>
                                                 </div>
-
-                                                {/* Action Buttons */}
                                                 <div className="flex gap-2 pt-2">
                                                     <Button size="sm" className="flex-1">
-                                                        {resource.type === 'video' ? (
-                                                            <>
-                                                                <Play className="h-4 w-4 mr-2" />
-                                                                Watch
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <Download className="h-4 w-4 mr-2" />
-                                                                Download
-                                                            </>
-                                                        )}
+                                                        <Download className="h-4 w-4 mr-2" />
+                                                        Download
                                                     </Button>
                                                     <Button size="sm" variant="outline">
                                                         Preview
@@ -476,7 +427,7 @@ const StudyResourcesPage = () => {
                     </Tabs>
                 )}
 
-                {!loading && filteredResources.length === 0 && (
+                {!loading && filteredPastPapers.length === 0 && filteredStudyNotes.length === 0 && (
                     <div className="text-center py-12">
                         <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-foreground mb-2">No resources found</h3>
