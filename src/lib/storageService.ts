@@ -11,6 +11,7 @@ export interface UploadOptions {
 export interface UploadResult {
   success: boolean;
   downloadURL?: string;
+  storagePath?: string;
   error?: string;
   fileName?: string;
   fileSize?: number;
