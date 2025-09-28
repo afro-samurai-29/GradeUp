@@ -434,37 +434,8 @@ Please provide educational guidance based on both their question and the work sh
       imageFile
     });
 
-    // Just show a simple message that image was uploaded successfully
-    const imageMessage: Message = {
-      id: Date.now().toString(),
-      content: `📸 **Image uploaded successfully!** \n\nNow tell me what you'd like help with regarding this work.`,
-      sender: "ai",
-      timestamp: new Date(),
-    };
-
-    setMessages(prev => [...prev, imageMessage]);
-
-    // Call onResponseReceived callback
-    onResponseReceived?.(imageMessage);
-
-    // Ensure conversation is initialized
-    let currentConversationId = conversationId;
-    if (!currentConversationId) {
-      currentConversationId = await initializeConversation();
-    }
-
-    // Add image upload to conversation log
-    if (currentConversationId) {
-      conversationService.addMessage(currentConversationId, `Image uploaded: ${imageFile.name}`, 'user', {
-        intent: 'image_upload',
-        topics: [selectedTopic],
-        extracted_content: extractedContent
-      });
-      
-      conversationService.addMessage(currentConversationId, imageMessage.content, 'assistant', {
-        intent: 'image_upload_confirmation'
-      });
-    }
+    // No messages needed - just silently store the image content
+    // The image will show as attached in the UI
   };
 
   const handleImageError = (error: string) => {
@@ -518,12 +489,12 @@ Please provide educational guidance based on both their question and the work sh
           if (debugMode) console.log(`✅ Real notes fetched, length: ${realNotes.length} characters`);
           return realNotes;
         } else {
-          console.warn(`⚠️ real-notes field not found or invalid in ${documentPath}`);
+          if (debugMode) console.log(`📝 Using fallback notes for ${topic} (no Firebase notes configured)`);
           // Fallback to hardcoded notes
           return getNotesForTopic(topic);
         }
       } else {
-        console.warn(`⚠️ Document ${documentPath} does not exist`);
+        if (debugMode) console.log(`📝 Using fallback notes for ${topic} (Firebase document not found)`);
         // Fallback to hardcoded notes
         return getNotesForTopic(topic);
       }
@@ -909,6 +880,22 @@ Please provide comprehensive, detailed explanations with examples and step-by-st
 
         {/* Input Area */}
         <div className="border-t p-4 flex-shrink-0 bg-white">
+          {/* Topic Selection */}
+          <div className="mb-3">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">Topic:</label>
+              <Select value={selectedTopic} onValueChange={setSelectedTopic}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Select topic" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="probability">Probability</SelectItem>
+                  <SelectItem value="functions">Functions</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           {/* Image Upload Section */}
           <div className="mb-3">
             <ImageUpload
@@ -919,15 +906,39 @@ Please provide comprehensive, detailed explanations with examples and step-by-st
             />
           </div>
 
+          {/* Attached Image Preview */}
+          {pendingImageContent && (
+            <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+              <div className="flex items-center gap-3">
+                <img
+                  src={URL.createObjectURL(pendingImageContent.imageFile)}
+                  alt="Uploaded work"
+                  className="w-16 h-16 object-cover rounded-md border border-gray-300"
+                />
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-700">
+                    📎 {pendingImageContent.imageFile.name}
+                  </div>
+                  <div className="text-xs text-green-600">
+                    ✅ Content extracted, ready for questions
+                  </div>
+                </div>
+                <button
+                  onClick={() => setPendingImageContent(null)}
+                  className="text-gray-400 hover:text-gray-600 p-1"
+                  title="Remove attachment"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Text Input Section */}
           <div className="flex gap-2">
             <div className="flex-1 relative">
               <Textarea
-                placeholder={
-                  pendingImageContent 
-                    ? "What would you like help with regarding your uploaded image?" 
-                    : "Ask me anything about your studies..."
-                }
+                placeholder="Ask me anything about your studies..."
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => {
@@ -936,15 +947,8 @@ Please provide comprehensive, detailed explanations with examples and step-by-st
                     handleSendMessage();
                   }
                 }}
-                className={`min-h-[50px] resize-none pr-12 ${
-                  pendingImageContent ? 'border-green-300 bg-green-50' : ''
-                }`}
+                className="min-h-[50px] resize-none pr-12"
               />
-              {pendingImageContent && (
-                <div className="absolute top-2 right-14 text-xs text-green-600 font-medium">
-                  📸 Image ready
-                </div>
-              )}
             </div>
             <Button
               size="icon"
