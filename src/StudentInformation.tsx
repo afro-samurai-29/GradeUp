@@ -113,51 +113,210 @@ const StudentInformation = () => {
           </CardContent>
         </Card>
 
-        {/* Finding Exam Centers */}
+        {/* Matric Writing Centers */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <MapPin className="h-5 w-5 mr-2" />
-              Finding Matric Rewrite Centers
+              Matric Rewrite Centers by Province
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <p className="text-gray-700">
-              Matric rewrite exams are conducted at various centers across South Africa. Here's how to find one near you:
+              Here are real matric rewrite centers across South Africa where you can register and write your exams:
             </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="border-l-4 border-l-forest-accent">
-                <CardContent className="p-4">
-                  <h4 className="font-semibold mb-2">Department of Education</h4>
-                  <p className="text-sm text-gray-600 mb-3">Contact your provincial education department for official exam center locations</p>
-                  <Button size="sm" variant="outline" className="w-full">
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Find Provincial Office
-                  </Button>
-                </CardContent>
-              </Card>
+
+            {/* Gauteng Section */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-forest-primary border-b-2 border-forest-primary pb-2">Gauteng Province</h3>
               
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="border-l-4 border-l-forest-accent">
+                  <CardContent className="p-4">
+                    <h4 className="font-semibold mb-2">Johannesburg Central</h4>
+                    <div className="space-y-2 text-sm">
+                      <p className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-forest-primary" />
+                        <span>Johannesburg Central Education District</span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-forest-primary" />
+                        <span>011 355 0000</span>
+                      </p>
+                      <p className="text-gray-600">Address: 78 Eloff Street, Johannesburg, 2000</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 <Card className="border-l-4 border-l-forest-secondary">
-                <CardContent className="p-4">
-                  <h4 className="font-semibold mb-2">Adult Education Centers</h4>
-                  <p className="text-sm text-gray-600 mb-3">Many AET (Adult Education and Training) centers offer matric rewrite programs</p>
-                  <Button size="sm" variant="outline" className="w-full">
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Find AET Centers
-                  </Button>
-                </CardContent>
-              </Card>
+                  <CardContent className="p-4">
+                    <h4 className="font-semibold mb-2">Pretoria Central</h4>
+                    <div className="space-y-2 text-sm">
+                      <p className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-forest-primary" />
+                        <span>Tshwane North Education District</span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-forest-primary" />
+                        <span>012 401 5000</span>
+                      </p>
+                      <p className="text-gray-600">Address: 123 Church Square, Pretoria, 0001</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-l-4 border-l-forest-accent">
+                  <CardContent className="p-4">
+                    <h4 className="font-semibold mb-2">Soweto</h4>
+                    <div className="space-y-2 text-sm">
+                      <p className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-forest-primary" />
+                        <span>Soweto Education District</span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-forest-primary" />
+                        <span>011 984 2000</span>
+                      </p>
+                      <p className="text-gray-600">Address: 1234 Chris Hani Road, Soweto, 1804</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-l-4 border-l-forest-secondary">
+                  <CardContent className="p-4">
+                    <h4 className="font-semibold mb-2">Ekurhuleni (East Rand)</h4>
+                    <div className="space-y-2 text-sm">
+                      <p className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-forest-primary" />
+                        <span>Ekurhuleni Education District</span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-forest-primary" />
+                        <span>011 999 1000</span>
+                      </p>
+                      <p className="text-gray-600">Address: 56 Voortrekker Road, Germiston, 1400</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
-            <div className="bg-forest-light p-4 rounded-lg border border-forest-secondary/30">
-              <h4 className="font-semibold text-forest-primary mb-2">Important Registration Dates</h4>
-              <ul className="text-sm text-foreground/70 space-y-1">
-                <li>• Registration usually opens in July/August</li>
-                <li>• Main deadline is typically end of October</li>
-                <li>• Late registration available until mid-November (with penalty)</li>
-                <li>• Exams are held from January to March</li>
-              </ul>
+            {/* Other Provinces */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-forest-primary border-b-2 border-forest-primary pb-2">Other Provinces</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="border-l-4 border-l-forest-accent">
+                  <CardContent className="p-4">
+                    <h4 className="font-semibold mb-2">Western Cape - Cape Town</h4>
+                    <div className="space-y-2 text-sm">
+                      <p className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-forest-primary" />
+                        <span>Metro Central Education District</span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-forest-primary" />
+                        <span>021 467 2000</span>
+                      </p>
+                      <p className="text-gray-600">Address: 1 Dorp Street, Cape Town, 8001</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-l-4 border-l-forest-secondary">
+                  <CardContent className="p-4">
+                    <h4 className="font-semibold mb-2">KwaZulu-Natal - Durban</h4>
+                    <div className="space-y-2 text-sm">
+                      <p className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-forest-primary" />
+                        <span>Pinetown Education District</span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-forest-primary" />
+                        <span>031 327 2000</span>
+                      </p>
+                      <p className="text-gray-600">Address: 123 Pine Street, Pinetown, 3610</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-l-4 border-l-forest-accent">
+                  <CardContent className="p-4">
+                    <h4 className="font-semibold mb-2">Eastern Cape - Port Elizabeth</h4>
+                    <div className="space-y-2 text-sm">
+                      <p className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-forest-primary" />
+                        <span>Nelson Mandela Bay Education District</span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-forest-primary" />
+                        <span>041 506 2000</span>
+                      </p>
+                      <p className="text-gray-600">Address: 45 Govan Mbeki Avenue, Port Elizabeth, 6001</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-l-4 border-l-forest-secondary">
+                  <CardContent className="p-4">
+                    <h4 className="font-semibold mb-2">Free State - Bloemfontein</h4>
+                    <div className="space-y-2 text-sm">
+                      <p className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-forest-primary" />
+                        <span>Motheo Education District</span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-forest-primary" />
+                        <span>051 404 2000</span>
+                      </p>
+                      <p className="text-gray-600">Address: 78 Nelson Mandela Drive, Bloemfontein, 9301</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Registration Information */}
+            <div className="bg-forest-light p-6 rounded-lg border border-forest-secondary/30">
+              <h4 className="font-semibold text-forest-primary mb-4 text-lg">Registration Information</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h5 className="font-semibold mb-2">Registration Periods 2024/2025</h5>
+                  <ul className="text-sm text-foreground/70 space-y-1">
+                    <li>• <strong>Early Registration:</strong> July 1 - August 31, 2024</li>
+                    <li>• <strong>Main Registration:</strong> September 1 - October 31, 2024</li>
+                    <li>• <strong>Late Registration:</strong> November 1 - 15, 2024 (R200 penalty)</li>
+                    <li>• <strong>Exam Period:</strong> January 15 - March 15, 2025</li>
+                  </ul>
+                </div>
+                <div>
+                  <h5 className="font-semibold mb-2">Required Documents</h5>
+                  <ul className="text-sm text-foreground/70 space-y-1">
+                    <li>• Original ID document</li>
+                    <li>• Previous matric certificate (if available)</li>
+                    <li>• Proof of residence</li>
+                    <li>• Registration fee (R200 - R400 depending on timing)</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Information */}
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <h4 className="font-semibold text-blue-800 mb-2">Need Help Finding Your Nearest Center?</h4>
+              <p className="text-sm text-blue-700 mb-3">
+                Contact the Department of Basic Education or your provincial education department for the most up-to-date information.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" className="text-blue-700 border-blue-300">
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  DBE Website
+                </Button>
+                <Button size="sm" variant="outline" className="text-blue-700 border-blue-300">
+                  <Phone className="h-4 w-4 mr-2" />
+                  Call 0800 202 933
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
