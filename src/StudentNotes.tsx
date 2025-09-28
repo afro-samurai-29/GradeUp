@@ -87,6 +87,7 @@ const StudentNotes = () => {
           };
         })
         .filter(note => studentSubjects.includes(note.subject)); // Filter by student's subjects
+      
       setNotes(loaded);
     });
     return () => unsub();
@@ -117,6 +118,28 @@ const StudentNotes = () => {
 
   const handleDeleteNote = (id: string) => {
     setNotes(notes.filter(note => note.id !== id));
+  };
+
+  // Clean preview function to strip markdown formatting
+  const getCleanPreview = (content: string, maxLength: number = 150): string => {
+    return content
+      // Remove video URLs and replace with indicator
+      .replace(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\?[^&\s]*)?/g, '📺 [Video Tutorial]')
+      .replace(/(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/g, '📺 [Video Tutorial]')
+      // Remove markdown formatting
+      .replace(/\*\*(.*?)\*\*/g, '$1') // Bold
+      .replace(/\*(.*?)\*/g, '$1') // Italic
+      .replace(/`(.*?)`/g, '$1') // Code
+      .replace(/^#{1,6}\s+/gm, '') // Headers
+      .replace(/^\*\s+/gm, '• ') // Bullet points
+      .replace(/^-\s+/gm, '• ') // Bullet points
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Links
+      .replace(/\$\$([\s\S]*?)\$\$/g, '[Math Formula]') // Block math
+      .replace(/\$([^$]+)\$/g, '[Math]') // Inline math
+      .replace(/\n+/g, ' ') // Replace newlines with spaces
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim()
+      .substring(0, maxLength) + (content.length > maxLength ? '...' : '');
   };
 
   return (
@@ -200,7 +223,7 @@ const StudentNotes = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-sm text-muted-foreground mb-3 line-clamp-3">
-                    {note.content.substring(0, 150)}...
+                    {getCleanPreview(note.content, 150)}
                   </div>
                   {note.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mb-3">
@@ -278,10 +301,71 @@ const StudentNotes = () => {
   );
 };
 
-// Markdown Content Component with KaTeX support
+// Video Embed Component (matching your other app's approach)
+const VideoEmbed: React.FC<{ videoId: string; platform: 'youtube' | 'vimeo' }> = ({ videoId, platform }) => {
+  const src = platform === 'youtube' 
+    ? `https://www.youtube.com/embed/${videoId}`
+    : `https://player.vimeo.com/video/${videoId}`;
+    
+  return (
+    <div className="aspect-video rounded-lg overflow-hidden bg-gray-100 my-4">
+      <iframe
+        src={src}
+        title={`${platform} Tutorial`}
+        className="w-full h-full"
+        allowFullScreen
+      />
+    </div>
+  );
+};
+
+// Markdown Content Component with KaTeX support and Video Embeds
 const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
+  const processContent = (text: string) => {
+    const elements: React.ReactNode[] = [];
+    let lastIndex = 0;
+
+    // Regex to capture the full video URL and its ID for YouTube, YouTube Embed, and Vimeo
+    // Group 1: YouTube watch/youtu.be ID
+    // Group 2: YouTube embed ID
+    // Group 3: Vimeo ID
+    const videoRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:(?:\?[^&\s]*)?)|(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]{11})|(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/g;
+
+    text.replace(videoRegex, (match, youtubeId, youtubeEmbedId, vimeoId, offset) => {
+      // Add preceding text as markdown
+      if (offset > lastIndex) {
+        const markdownPart = text.substring(lastIndex, offset);
+        if (markdownPart.trim()) {
+          elements.push(<div key={`md-${lastIndex}`} dangerouslySetInnerHTML={{ __html: formatMarkdown(markdownPart) }} />);
+        }
+      }
+
+      // Add video embed
+      if (youtubeId) {
+        elements.push(<VideoEmbed key={`yt-${offset}`} videoId={youtubeId} platform="youtube" />);
+      } else if (youtubeEmbedId) {
+        elements.push(<VideoEmbed key={`yte-${offset}`} videoId={youtubeEmbedId} platform="youtube" />);
+      } else if (vimeoId) {
+        elements.push(<VideoEmbed key={`vm-${offset}`} videoId={vimeoId} platform="vimeo" />);
+      }
+
+      lastIndex = offset + match.length;
+      return match; // Return match to allow replace to continue
+    });
+
+    // Add any remaining text as markdown
+    if (lastIndex < text.length) {
+      const markdownPart = text.substring(lastIndex);
+      if (markdownPart.trim()) {
+        elements.push(<div key={`md-${lastIndex}`} dangerouslySetInnerHTML={{ __html: formatMarkdown(markdownPart) }} />);
+      }
+    }
+
+    return elements;
+  };
+
   const formatMarkdown = (text: string) => {
-    // First handle LaTeX math expressions
+    // Handle LaTeX math expressions
     let processedText = text
       // Handle block math ($$...$$ and \[...\])
       .replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
@@ -313,7 +397,7 @@ const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
           return `<span class="math-error">Math Error: ${math}</span>`;
         }
       })
-      // Then handle regular markdown
+      // Handle regular markdown
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/`(.*?)`/g, '<code class="bg-muted px-1 py-0.5 rounded text-sm">$1</code>')
@@ -329,7 +413,9 @@ const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
   };
 
   return (
-    <div dangerouslySetInnerHTML={{ __html: formatMarkdown(content) }} />
+    <div>
+      {processContent(content)}
+    </div>
   );
 };
 

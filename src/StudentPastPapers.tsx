@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import StudentNavbar from '@/components/StudentNavbar';
+import StudentLayout from '@/components/StudentLayout';
 import { db } from './firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import {
@@ -145,7 +145,7 @@ const StudentPastPapers = () => {
   };
 
   return (
-    <StudentLayout>image.png
+    <StudentLayout>
       {/* Header */}
       <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto">

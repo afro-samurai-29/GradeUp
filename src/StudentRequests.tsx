@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import StudentLayout from '@/components/StudentLayout';
+import { StorageService, FILE_TYPES } from '@/lib/storageService';
+import { db, auth } from './firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { 
   ArrowLeft, 
   Plus, 
@@ -28,8 +32,150 @@ const StudentRequests = () => {
   const [showNewRequest, setShowNewRequest] = useState(false);
   const [requestType, setRequestType] = useState<'text' | 'video' | 'audio' | 'image'>('text');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    subject: '',
+    priority: 'medium',
+    title: '',
+    description: '',
+    fileUrl: '',
+    fileName: ''
+  });
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const subjects = ['Mathematics', 'English', 'Physical Sciences', 'Life Sciences', 'History', 'Geography'];
+
+  // Handle file selection
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setUploadError(null);
+      
+      // Validate file based on request type
+      let allowedTypes: string[] = [];
+      let maxSize = 10; // MB
+      
+      switch (requestType) {
+        case 'image':
+          allowedTypes = FILE_TYPES.IMAGES;
+          maxSize = 5;
+          break;
+        case 'video':
+          allowedTypes = FILE_TYPES.VIDEOS;
+          maxSize = 50;
+          break;
+        case 'audio':
+          allowedTypes = FILE_TYPES.AUDIO;
+          maxSize = 20;
+          break;
+        default:
+          allowedTypes = [...FILE_TYPES.IMAGES, ...FILE_TYPES.DOCUMENTS];
+      }
+      
+      const validation = StorageService.validateFile(file, allowedTypes, maxSize);
+      if (!validation.valid) {
+        setUploadError(validation.error || 'Invalid file');
+        setSelectedFile(null);
+        return;
+      }
+    }
+  };
+
+  // Handle form submission
+  const handleSubmit = async () => {
+    if (!formData.subject || !formData.title || (!formData.description && !selectedFile)) {
+      setUploadError('Please fill in all required fields');
+      return;
+    }
+
+    // Check if user is authenticated
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      setUploadError('You must be logged in to submit a help request');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setUploadProgress(0);
+
+    try {
+      let fileUrl = '';
+      let fileName = '';
+
+      // Upload file if selected
+      if (selectedFile) {
+        setUploadProgress(25);
+        const uploadResult = await StorageService.uploadHelpRequestFile(
+          selectedFile,
+          currentUser.uid, // Use actual authenticated user ID
+          requestType
+        );
+
+        if (!uploadResult.success) {
+          throw new Error(uploadResult.error || 'File upload failed');
+        }
+
+        fileUrl = uploadResult.downloadURL || '';
+        fileName = uploadResult.fileName || '';
+        setUploadProgress(75);
+      }
+
+      // Save request to Firestore
+      await addDoc(collection(db, 'helpRequests'), {
+        ...formData,
+        fileUrl,
+        fileName,
+        requestType,
+        status: 'pending',
+        createdAt: serverTimestamp(),
+        studentId: currentUser.uid // Use actual authenticated user ID
+      });
+
+      setUploadProgress(100);
+      
+      // Reset form
+      setFormData({
+        subject: '',
+        priority: 'medium',
+        title: '',
+        description: '',
+        fileUrl: '',
+        fileName: ''
+      });
+      setSelectedFile(null);
+      setShowNewRequest(false);
+      
+      alert('Help request submitted successfully!');
+    } catch (error: any) {
+      console.error('Error submitting request:', error);
+      setUploadError(error.message || 'Failed to submit request');
+    } finally {
+      setIsSubmitting(false);
+      setUploadProgress(0);
+    }
+  };
+
+  // Reset form
+  const resetForm = () => {
+    setFormData({
+      subject: '',
+      priority: 'medium',
+      title: '',
+      description: '',
+      fileUrl: '',
+      fileName: ''
+    });
+    setSelectedFile(null);
+    setUploadError(null);
+    setUploadProgress(0);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   return (
     <StudentLayout>
@@ -124,8 +270,12 @@ const StudentRequests = () => {
               {/* Form Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Subject</label>
-                  <select className="w-full px-3 py-2 border rounded-md bg-background">
+                  <label className="block text-sm font-medium mb-1">Subject *</label>
+                  <select 
+                    className="w-full px-3 py-2 border rounded-md bg-background"
+                    value={formData.subject}
+                    onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
+                  >
                     <option value="">Select Subject</option>
                     {subjects.map(subject => (
                       <option key={subject} value={subject}>{subject}</option>
@@ -134,7 +284,11 @@ const StudentRequests = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Priority</label>
-                  <select className="w-full px-3 py-2 border rounded-md bg-background">
+                  <select 
+                    className="w-full px-3 py-2 border rounded-md bg-background"
+                    value={formData.priority}
+                    onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value }))}
+                  >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
                     <option value="high">High</option>
@@ -143,93 +297,180 @@ const StudentRequests = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Title</label>
-                <Input placeholder="Brief title for your question" />
+                <label className="block text-sm font-medium mb-1">Title *</label>
+                <Input 
+                  placeholder="Brief title for your question" 
+                  value={formData.title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                />
               </div>
 
               {/* Dynamic Content Based on Request Type */}
               {requestType === 'text' && (
                 <div>
-                  <label className="block text-sm font-medium mb-1">Describe your question</label>
+                  <label className="block text-sm font-medium mb-1">Describe your question *</label>
                   <Textarea 
                     placeholder="Explain what you need help with in detail..."
                     rows={4}
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   />
                 </div>
               )}
 
               {requestType === 'video' && (
                 <div className="space-y-3">
-                  <label className="block text-sm font-medium">Record or Upload Video</label>
+                  <label className="block text-sm font-medium">Upload Video File *</label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                     <Video className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-sm text-gray-600 mb-4">Record a video question or upload a video file</p>
-                    <div className="flex gap-2 justify-center">
-                      <Button variant="outline" className="flex items-center gap-2">
-                        <Video className="h-4 w-4" />
-                        Record Video
-                      </Button>
-                      <Button variant="outline" className="flex items-center gap-2">
-                        <Upload className="h-4 w-4" />
-                        Upload File
-                      </Button>
-                    </div>
+                    <p className="text-sm text-gray-600 mb-4">Upload a video file (MP4, WebM, OGG - max 50MB)</p>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="video/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                    <Button 
+                      variant="outline" 
+                      className="flex items-center gap-2"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="h-4 w-4" />
+                      Choose Video File
+                    </Button>
+                    {selectedFile && (
+                      <div className="mt-3 p-2 bg-gray-100 rounded">
+                        <p className="text-sm text-gray-700">
+                          Selected: <strong>{selectedFile.name}</strong> ({StorageService.formatFileSize(selectedFile.size)})
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
 
               {requestType === 'audio' && (
                 <div className="space-y-3">
-                  <label className="block text-sm font-medium">Record or Upload Audio</label>
+                  <label className="block text-sm font-medium">Upload Audio File *</label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                     <Mic className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-sm text-gray-600 mb-4">Record an audio question or upload an audio file</p>
-                    <div className="flex gap-2 justify-center">
-                      <Button variant="outline" className="flex items-center gap-2">
-                        <Mic className="h-4 w-4" />
-                        Record Audio
-                      </Button>
-                      <Button variant="outline" className="flex items-center gap-2">
-                        <Upload className="h-4 w-4" />
-                        Upload File
-                      </Button>
-                    </div>
+                    <p className="text-sm text-gray-600 mb-4">Upload an audio file (MP3, WAV, OGG - max 20MB)</p>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="audio/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                    <Button 
+                      variant="outline" 
+                      className="flex items-center gap-2"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="h-4 w-4" />
+                      Choose Audio File
+                    </Button>
+                    {selectedFile && (
+                      <div className="mt-3 p-2 bg-gray-100 rounded">
+                        <p className="text-sm text-gray-700">
+                          Selected: <strong>{selectedFile.name}</strong> ({StorageService.formatFileSize(selectedFile.size)})
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
 
               {requestType === 'image' && (
                 <div className="space-y-3">
-                  <label className="block text-sm font-medium">Upload Image</label>
+                  <label className="block text-sm font-medium">Upload Image *</label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                     <Image className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-sm text-gray-600 mb-4">Take a photo of your question or upload an image</p>
-                    <div className="flex gap-2 justify-center">
-                      <Button variant="outline" className="flex items-center gap-2">
-                        <Camera className="h-4 w-4" />
-                        Take Photo
-                      </Button>
-                      <Button variant="outline" className="flex items-center gap-2">
-                        <Upload className="h-4 w-4" />
-                        Upload Image
-                      </Button>
-                    </div>
+                    <p className="text-sm text-gray-600 mb-4">Upload an image (JPEG, PNG, GIF, WebP - max 5MB)</p>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                    <Button 
+                      variant="outline" 
+                      className="flex items-center gap-2"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Camera className="h-4 w-4" />
+                      Choose Image
+                    </Button>
+                    {selectedFile && (
+                      <div className="mt-3 p-2 bg-gray-100 rounded">
+                        <p className="text-sm text-gray-700">
+                          Selected: <strong>{selectedFile.name}</strong> ({StorageService.formatFileSize(selectedFile.size)})
+                        </p>
+                      </div>
+                    )}
                   </div>
                   <Textarea 
                     placeholder="Add context or explanation for your image..."
                     rows={3}
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   />
                 </div>
               )}
 
+              {/* Error Display */}
+              {uploadError && (
+                <Alert className="border-red-200 bg-red-50">
+                  <AlertDescription className="text-red-700">
+                    {uploadError}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Progress Bar */}
+              {isSubmitting && uploadProgress > 0 && (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Uploading...</span>
+                    <span>{uploadProgress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-orange-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-2">
-                <Button className="bg-orange-600 hover:bg-orange-700">
-                  <Send className="h-4 w-4 mr-2" />
-                  Submit Request
+                <Button 
+                  className="bg-orange-600 hover:bg-orange-700"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Submit Request
+                    </>
+                  )}
                 </Button>
                 <Button 
                   variant="outline" 
-                  onClick={() => setShowNewRequest(false)}
+                  onClick={() => {
+                    setShowNewRequest(false);
+                    resetForm();
+                  }}
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </Button>

@@ -256,7 +256,7 @@ const AdminNewNote: React.FC = () => {
   );
 };
 
-// Markdown Preview Component with KaTeX support
+// Markdown Preview Component with KaTeX support and Video Embeds
 const MarkdownPreview: React.FC<{ content: string }> = ({ content }) => {
   const formatMarkdown = (text: string) => {
     // First handle LaTeX math expressions
@@ -290,6 +290,37 @@ const MarkdownPreview: React.FC<{ content: string }> = ({ content }) => {
         } catch (e) {
           return `<span class="math-error">Math Error: ${math}</span>`;
         }
+      })
+      // Handle video embeds BEFORE other markdown processing
+      // YouTube videos (with query parameters)
+      .replace(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\?[^&\s]*)?/g, (match, videoId) => {
+        return `<div class="video-embed my-4">
+          <iframe 
+            width="100%" 
+            height="315" 
+            src="https://www.youtube.com/embed/${videoId}" 
+            title="YouTube video" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen
+            style="border-radius: 8px; max-width: 560px;">
+          </iframe>
+        </div>`;
+      })
+      // Vimeo videos
+      .replace(/(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/g, (match, videoId) => {
+        return `<div class="video-embed my-4">
+          <iframe 
+            width="100%" 
+            height="315" 
+            src="https://player.vimeo.com/video/${videoId}" 
+            title="Vimeo video" 
+            frameborder="0" 
+            allow="autoplay; fullscreen; picture-in-picture" 
+            allowfullscreen
+            style="border-radius: 8px; max-width: 560px;">
+          </iframe>
+        </div>`;
       })
       // Then handle regular markdown
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')

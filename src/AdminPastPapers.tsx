@@ -8,9 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ArrowLeft, Upload, FileText, Download, Trash2, Calendar, BookOpen } from 'lucide-react';
-import { db, storage } from '@/firebaseConfig';
+import { db } from './firebase';
 import { collection, addDoc, onSnapshot, orderBy, query, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { StorageService } from '@/lib/storageService';
 
 interface PastPaper {
   id: string;
@@ -90,11 +90,17 @@ const AdminPastPapers: React.FC = () => {
 
     setIsUploading(true);
     try {
-      // Upload file to Firebase Storage
-      const fileName = `${uploadData.subject}_${uploadData.year}_${Date.now()}_${selectedFile.name}`;
-      const storageRef = ref(storage, `past-papers/${fileName}`);
-      const snapshot = await uploadBytes(storageRef, selectedFile);
-      const downloadURL = await getDownloadURL(snapshot.ref);
+      // Upload file using StorageService
+      const uploadResult = await StorageService.uploadPastPaper(
+        selectedFile,
+        uploadData.subject,
+        uploadData.year,
+        uploadData.title
+      );
+
+      if (!uploadResult.success) {
+        throw new Error(uploadResult.error || 'Upload failed');
+      }
 
       // Save metadata to Firestore
       await addDoc(collection(db, 'pastPapers'), {
@@ -102,7 +108,7 @@ const AdminPastPapers: React.FC = () => {
         subject: uploadData.subject,
         year: uploadData.year,
         fileName: selectedFile.name,
-        fileUrl: downloadURL,
+        fileUrl: uploadResult.downloadURL,
         fileSize: selectedFile.size,
         uploadedAt: serverTimestamp()
       });
@@ -114,7 +120,7 @@ const AdminPastPapers: React.FC = () => {
       if (fileInput) fileInput.value = '';
 
       alert('Past paper uploaded successfully!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading past paper:', error);
       alert('Error uploading past paper. Please try again.');
     } finally {
@@ -126,24 +132,24 @@ const AdminPastPapers: React.FC = () => {
     if (!confirm(`Are you sure you want to delete "${paper.title}"?`)) return;
 
     try {
-      // Delete file from Storage
-      const fileRef = ref(storage, paper.fileUrl);
-      await deleteObject(fileRef);
+      // Delete file from Storage using StorageService
+      if (paper.fileUrl) {
+        const deleteResult = await StorageService.deleteFile(paper.fileUrl);
+        if (!deleteResult.success) {
+          console.warn('Failed to delete file from storage:', deleteResult.error);
+        }
+      }
 
       // Delete document from Firestore
       await deleteDoc(doc(db, 'pastPapers', paper.id));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting past paper:', error);
       alert('Error deleting past paper. Please try again.');
     }
   };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return StorageService.formatFileSize(bytes);
   };
 
   return (

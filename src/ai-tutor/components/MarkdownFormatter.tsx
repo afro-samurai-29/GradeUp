@@ -112,6 +112,17 @@ export function MarkdownFormatter({ content, className = "" }: MarkdownFormatter
   const processMarkdown = (text: string, key: number) => {
     if (!text.trim()) return null;
 
+    // First handle video embeds
+    text = text
+      // YouTube videos (with query parameters)
+      .replace(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\?[^&\s]*)?/g, (match, videoId) => {
+        return `\n\n<VIDEO_EMBED_YOUTUBE:${videoId}>\n\n`;
+      })
+      // Vimeo videos
+      .replace(/(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/g, (match, videoId) => {
+        return `\n\n<VIDEO_EMBED_VIMEO:${videoId}>\n\n`;
+      });
+
     // Split by double newlines to create paragraphs
     const paragraphs = text.split(/\n\s*\n/);
     
@@ -119,6 +130,47 @@ export function MarkdownFormatter({ content, className = "" }: MarkdownFormatter
       <div key={key} className="space-y-4">
         {paragraphs.map((paragraph, pIndex) => {
           if (!paragraph.trim()) return null;
+          
+          // Check for video embeds
+          if (paragraph.includes('<VIDEO_EMBED_YOUTUBE:')) {
+            const videoId = paragraph.match(/<VIDEO_EMBED_YOUTUBE:([^>]+)>/)?.[1];
+            if (videoId) {
+              return (
+                <div key={pIndex} className="video-embed my-6">
+                  <iframe 
+                    width="100%" 
+                    height="315" 
+                    src={`https://www.youtube.com/embed/${videoId}`}
+                    title="YouTube video" 
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowFullScreen
+                    className="rounded-lg shadow-lg max-w-2xl mx-auto"
+                  />
+                </div>
+              );
+            }
+          }
+          
+          if (paragraph.includes('<VIDEO_EMBED_VIMEO:')) {
+            const videoId = paragraph.match(/<VIDEO_EMBED_VIMEO:([^>]+)>/)?.[1];
+            if (videoId) {
+              return (
+                <div key={pIndex} className="video-embed my-6">
+                  <iframe 
+                    width="100%" 
+                    height="315" 
+                    src={`https://player.vimeo.com/video/${videoId}`}
+                    title="Vimeo video" 
+                    frameBorder="0" 
+                    allow="autoplay; fullscreen; picture-in-picture" 
+                    allowFullScreen
+                    className="rounded-lg shadow-lg max-w-2xl mx-auto"
+                  />
+                </div>
+              );
+            }
+          }
           
           // Check for headers
           if (paragraph.startsWith('## ')) {

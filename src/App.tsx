@@ -12,7 +12,7 @@ import StudyResourcesPage from "./pages/StudyResourcesPage";
 import TutorNetworkPage from "./pages/TutorNetworkPage";
 import DeadlineTrackerPage from "./pages/DeadlineTrackerPage";
 import NotFound from "./pages/NotFound";
-import AIChatbox from './components/AIChatbox';
+// Removed AIChatbox - now using AIChatbot in StudentLayout
 
 
 // Student Components
@@ -76,7 +76,6 @@ const App = () => (
           
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <AIChatbox />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

@@ -1,0 +1,60 @@
+// Firebase Storage Security Rules
+// These rules control access to files stored in Firebase Storage
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Past Papers - Only admins can upload, everyone can read
+    match /past-papers/{fileName} {
+      // Allow read access to all authenticated users
+      allow read: if request.auth != null;
+      
+      // Only allow write access to admin users
+      allow write: if request.auth != null 
+        && request.auth.token.admin == true;
+    }
+    
+    // Help Requests - Students can upload their own files, tutors can read
+    match /help-requests/{studentId}/{fileName} {
+      // Allow students to upload their own files
+      allow create: if request.auth != null 
+        && request.auth.uid == studentId;
+      
+      // Allow students to read their own files (and tutors if they have the claim)
+      allow read: if request.auth != null 
+        && (request.auth.uid == studentId || 
+            (request.auth.token.tutor == true));
+      
+      // Allow students to delete their own files
+      allow delete: if request.auth != null 
+        && request.auth.uid == studentId;
+    }
+    
+    // AI Tutor Images - Users can upload their own images
+    match /ai-tutor-images/{fileName} {
+      // Allow authenticated users to upload and read their own images
+      allow read, write: if request.auth != null;
+    }
+    
+    // Profile Images - Users can manage their own profile images
+    match /profile-images/{userId}/{fileName} {
+      // Allow users to manage their own profile images
+      allow read, write, delete: if request.auth != null 
+        && request.auth.uid == userId;
+    }
+    
+    // General file uploads - authenticated users only
+    match /uploads/{userId}/{fileName} {
+      // Allow users to manage their own uploads
+      allow read, write, delete: if request.auth != null 
+        && request.auth.uid == userId;
+    }
+    
+    // Deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
