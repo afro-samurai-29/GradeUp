@@ -11,15 +11,15 @@ const AdminSupport = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-gray-800 text-white p-6">
+      <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link to="/admin" className="hover:bg-gray-700 p-2 rounded-lg transition-colors">
+            <Link to="/admin" className="hover:bg-white/20 p-2 rounded-lg transition-colors">
               <ArrowLeft className="h-6 w-6" />
             </Link>
             <div>
               <h1 className="text-3xl font-bold">Support Center</h1>
-              <p className="text-gray-300">Handle user queries and platform issues</p>
+              <p className="text-forest-light">Handle user queries and platform issues</p>
             </div>
           </div>
         </div>
@@ -71,7 +71,7 @@ const AdminSupport = () => {
                   <div>
                     <label className="block text-sm font-medium mb-2">Your Response</label>
                     <Textarea placeholder="Type your response here..." rows={4} />
-                    <Button className="mt-2">
+                    <Button className="mt-2 bg-forest-primary hover:bg-forest-secondary">
                       <Send className="h-4 w-4 mr-2" />
                       Send Response
                     </Button>

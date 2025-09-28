@@ -19,6 +19,10 @@ interface PastPaper {
   year: string;
   fileName: string;
   fileUrl: string;
+<<<<<<< HEAD
+  storagePath: string;
+=======
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
   uploadedAt: any;
   fileSize: number;
 }
@@ -60,6 +64,10 @@ const AdminPastPapers: React.FC = () => {
           year: data.year || '',
           fileName: data.fileName || '',
           fileUrl: data.fileUrl || '',
+<<<<<<< HEAD
+          storagePath: data.storagePath || '',
+=======
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
           uploadedAt: data.uploadedAt,
           fileSize: data.fileSize || 0
         };
@@ -88,6 +96,23 @@ const AdminPastPapers: React.FC = () => {
       return;
     }
 
+<<<<<<< HEAD
+    // Validate file size (max 50MB)
+    const maxSize = 50 * 1024 * 1024; // 50MB in bytes
+    if (selectedFile.size > maxSize) {
+      alert('File size too large. Please select a file smaller than 50MB.');
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!allowedTypes.includes(selectedFile.type)) {
+      alert('Invalid file type. Please select a PDF, DOC, or DOCX file.');
+      return;
+    }
+
+=======
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
     setIsUploading(true);
     try {
       // Upload file to Firebase Storage
@@ -103,6 +128,10 @@ const AdminPastPapers: React.FC = () => {
         year: uploadData.year,
         fileName: selectedFile.name,
         fileUrl: downloadURL,
+<<<<<<< HEAD
+        storagePath: `past-papers/${fileName}`,
+=======
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
         fileSize: selectedFile.size,
         uploadedAt: serverTimestamp()
       });
@@ -113,10 +142,33 @@ const AdminPastPapers: React.FC = () => {
       const fileInput = document.getElementById('file-upload') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
 
+<<<<<<< HEAD
+      alert('Past paper uploaded successfully! Students can now access it from their dashboard.');
+    } catch (error: any) {
+      console.error('Error uploading past paper:', error);
+      
+      // Provide more specific error messages
+      let errorMessage = 'Error uploading past paper. Please try again.';
+      
+      if (error.code === 'storage/unauthorized') {
+        errorMessage = 'Unauthorized access to storage. Please check your permissions.';
+      } else if (error.code === 'storage/canceled') {
+        errorMessage = 'Upload was canceled. Please try again.';
+      } else if (error.code === 'storage/unknown') {
+        errorMessage = 'Unknown error occurred. Please check your internet connection and try again.';
+      } else if (error.code === 'permission-denied') {
+        errorMessage = 'Permission denied. Please check your Firebase rules.';
+      } else if (error.message) {
+        errorMessage = `Upload failed: ${error.message}`;
+      }
+      
+      alert(errorMessage);
+=======
       alert('Past paper uploaded successfully!');
     } catch (error) {
       console.error('Error uploading past paper:', error);
       alert('Error uploading past paper. Please try again.');
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
     } finally {
       setIsUploading(false);
     }
@@ -126,12 +178,22 @@ const AdminPastPapers: React.FC = () => {
     if (!confirm(`Are you sure you want to delete "${paper.title}"?`)) return;
 
     try {
+<<<<<<< HEAD
+      // Delete file from Storage using the storage path
+      const fileRef = ref(storage, paper.storagePath);
+=======
       // Delete file from Storage
       const fileRef = ref(storage, paper.fileUrl);
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
       await deleteObject(fileRef);
 
       // Delete document from Firestore
       await deleteDoc(doc(db, 'pastPapers', paper.id));
+<<<<<<< HEAD
+      
+      alert('Past paper deleted successfully!');
+=======
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
     } catch (error) {
       console.error('Error deleting past paper:', error);
       alert('Error deleting past paper. Please try again.');

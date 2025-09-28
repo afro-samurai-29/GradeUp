@@ -1,3 +1,36 @@
+<<<<<<< HEAD
+import React from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import StudentNavbar from '@/components/StudentNavbar';
+import { 
+  BookOpen, 
+  FileText, 
+  User, 
+  MessageCircle, 
+  Calendar,
+  TrendingUp,
+  Award,
+  Clock,
+  Users,
+  Star,
+  ArrowLeft
+} from 'lucide-react';
+
+const StudentDashboard = () => {
+  const [searchParams] = useSearchParams();
+  const isAdminView = searchParams.get('adminView') === 'true';
+  const userId = searchParams.get('userId');
+  const userName = searchParams.get('userName');
+
+  const quickActions = [
+    { icon: BookOpen, label: "Study Notes", href: isAdminView ? `/student/notes?adminView=true&userId=${userId}&userName=${encodeURIComponent(userName || '')}` : "/student/notes", color: "bg-blue-500", description: "Access your study materials and notes" },
+    { icon: FileText, label: "Past Papers", href: isAdminView ? `/student/past-papers?adminView=true&userId=${userId}&userName=${encodeURIComponent(userName || '')}` : "/student/past-papers", color: "bg-green-500", description: "Download previous exam papers and memos" },
+    { icon: MessageCircle, label: "Help Requests", href: isAdminView ? `/student/requests?adminView=true&userId=${userId}&userName=${encodeURIComponent(userName || '')}` : "/student/requests", color: "bg-purple-500", description: "Ask questions and get help from tutors" },
+    { icon: User, label: "My Profile", href: isAdminView ? `/student/profile?adminView=true&userId=${userId}&userName=${encodeURIComponent(userName || '')}` : "/student/profile", color: "bg-orange-500", description: "Manage your profile and preferences" },
+=======
 import React, { useEffect, useState } from "react";
 import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { db } from "./firebase";
@@ -55,6 +88,7 @@ const StudentDashboard = () => {
       description: "Ask questions",
       href: "/student/support"
     }
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
   ];
 
   useEffect(() => {
@@ -152,8 +186,25 @@ const StudentDashboard = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">Student Dashboard</h1>
-              <p className="text-forest-light mt-1">Welcome back! Ready to continue your learning journey?</p>
+              {isAdminView ? (
+                <div className="flex items-center gap-4">
+                  <Link to="/admin/users">
+                    <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Back to Users
+                    </Button>
+                  </Link>
+                  <div>
+                    <h1 className="text-3xl font-bold">Student Dashboard</h1>
+                    <p className="text-forest-light mt-1">Viewing as: {userName || 'Student'}</p>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <h1 className="text-3xl font-bold">Student Dashboard</h1>
+                  <p className="text-forest-light mt-1">Welcome back! Ready to continue your learning journey?</p>
+                </div>
+              )}
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold">4.2</div>
@@ -163,6 +214,10 @@ const StudentDashboard = () => {
         </div>
       </div>
 
+<<<<<<< HEAD
+      {!isAdminView && <StudentNavbar />}
+=======
+>>>>>>> 4af57b127e7f204a746a64a584592ee365e8f33a
 
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Stats Overview */}
