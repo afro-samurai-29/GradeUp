@@ -29,9 +29,9 @@ const TutorNetworkPage = () => {
     const [filteredTutors, setFilteredTutors] = useState<Tutor[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedSubject, setSelectedSubject] = useState('');
-    const [selectedProvince, setSelectedProvince] = useState('');
-    const [minRating, setMinRating] = useState('');
+    const [selectedSubject, setSelectedSubject] = useState('all');
+    const [selectedProvince, setSelectedProvince] = useState('all');
+    const [minRating, setMinRating] = useState('all');
     const [selectedTutor, setSelectedTutor] = useState<Tutor | null>(null);
 
     const subjects = [
@@ -82,16 +82,16 @@ const TutorNetworkPage = () => {
             );
         }
 
-        if (selectedSubject) {
+        if (selectedSubject && selectedSubject !== 'all') {
             filtered = filtered.filter(tutor => tutor.subjects.includes(selectedSubject));
         }
 
-        if (selectedProvince) {
+        if (selectedProvince && selectedProvince !== 'all') {
             // Note: This would require adding province to tutor data structure
             // For now, we'll skip this filter
         }
 
-        if (minRating) {
+        if (minRating && minRating !== 'all') {
             filtered = filtered.filter(tutor => tutor.rating >= parseFloat(minRating));
         }
 
@@ -151,7 +151,7 @@ const TutorNetworkPage = () => {
                                     <SelectValue placeholder="All Subjects" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Subjects</SelectItem>
+                                    <SelectItem value="all">All Subjects</SelectItem>
                                     {subjects.map(subject => (
                                         <SelectItem key={subject} value={subject}>
                                             {subject}
@@ -164,7 +164,7 @@ const TutorNetworkPage = () => {
                                     <SelectValue placeholder="All Locations" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Locations</SelectItem>
+                                    <SelectItem value="all">All Locations</SelectItem>
                                     {provinces.map(province => (
                                         <SelectItem key={province} value={province}>
                                             {province}
@@ -177,7 +177,7 @@ const TutorNetworkPage = () => {
                                     <SelectValue placeholder="Min Rating" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">Any Rating</SelectItem>
+                                    <SelectItem value="all">Any Rating</SelectItem>
                                     {ratingOptions.map(option => (
                                         <SelectItem key={option.value} value={option.value}>
                                             {option.label}

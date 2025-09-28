@@ -14,8 +14,8 @@ const RewriteCentersPage = () => {
     const [filteredCenters, setFilteredCenters] = useState<RewriteCenter[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedProvince, setSelectedProvince] = useState('');
-    const [selectedCity, setSelectedCity] = useState('');
+    const [selectedProvince, setSelectedProvince] = useState('all');
+    const [selectedCity, setSelectedCity] = useState('all');
 
     const provinces = [
         'Eastern Cape', 'Free State', 'Gauteng', 'KwaZulu-Natal',
@@ -45,7 +45,10 @@ const RewriteCentersPage = () => {
     const loadCenters = async () => {
         try {
             setLoading(true);
-            const data = await getRewriteCenters(selectedProvince, selectedCity);
+            const data = await getRewriteCenters(
+                selectedProvince !== 'all' ? selectedProvince : undefined,
+                selectedCity !== 'all' ? selectedCity : undefined
+            );
             setCenters(data);
         } catch (error) {
             console.error('Error loading centers:', error);
@@ -65,11 +68,11 @@ const RewriteCentersPage = () => {
             );
         }
 
-        if (selectedProvince) {
+        if (selectedProvince && selectedProvince !== 'all') {
             filtered = filtered.filter(center => center.address.province === selectedProvince);
         }
 
-        if (selectedCity) {
+        if (selectedCity && selectedCity !== 'all') {
             filtered = filtered.filter(center => center.address.city === selectedCity);
         }
 
@@ -122,7 +125,7 @@ const RewriteCentersPage = () => {
                                     <SelectValue placeholder="Select Province" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Provinces</SelectItem>
+                                    <SelectItem value="all">All Provinces</SelectItem>
                                     {provinces.map(province => (
                                         <SelectItem key={province} value={province}>
                                             {province}
@@ -135,7 +138,7 @@ const RewriteCentersPage = () => {
                                     <SelectValue placeholder="Select City" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Cities</SelectItem>
+                                    <SelectItem value="all">All Cities</SelectItem>
                                     {selectedProvince && cities[selectedProvince as keyof typeof cities]?.map(city => (
                                         <SelectItem key={city} value={city}>
                                             {city}
