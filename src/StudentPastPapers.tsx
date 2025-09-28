@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import StudentNavbar from '@/components/StudentNavbar';
 import { 
   ArrowLeft, 
   Download, 
@@ -152,26 +153,25 @@ const StudentPastPapers = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-blue-600 text-white p-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link to="/student" className="hover:bg-blue-700 p-2 rounded-lg transition-colors">
-              <ArrowLeft className="h-6 w-6" />
-            </Link>
+      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Past Papers</h1>
-              <p className="text-blue-100">Browse and download previous exam papers</p>
+              <p className="text-green-100 mt-1">Browse and download previous exam papers</p>
             </div>
+            <Button 
+              onClick={() => setShowFilters(!showFilters)}
+              className="bg-white text-green-600 hover:bg-green-50 shadow-lg"
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Filters
+            </Button>
           </div>
-          <Button 
-            onClick={() => setShowFilters(!showFilters)}
-            className="bg-white text-blue-600 hover:bg-blue-50"
-          >
-            <Filter className="h-4 w-4 mr-2" />
-            Filters
-          </Button>
         </div>
       </div>
+
+      <StudentNavbar />
 
       <div className="max-w-7xl mx-auto p-6">
         {/* Search and Filters */}

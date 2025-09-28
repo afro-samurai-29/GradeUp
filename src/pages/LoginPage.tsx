@@ -41,11 +41,11 @@ const LoginPage = () => {
 
         // Navigate to appropriate dashboard based on role
         if (userRole === 'learner') {
-          navigate('/student/dashboard');
+          navigate('/student');
         } else if (userRole === 'tutor') {
-          navigate('/tutor/dashboard');
+          navigate('/tutor');
         } else if (userRole === 'admin') {
-          navigate('/admin/dashboard');
+          navigate('/admin');
         } else {
           // Default fallback to general dashboard
           navigate('/dashboard');

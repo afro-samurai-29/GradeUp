@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import StudentNavbar from '@/components/StudentNavbar';
 import { 
   ArrowLeft, 
   Plus, 
@@ -87,26 +88,25 @@ const StudentNotes = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-green-600 text-white p-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link to="/student" className="hover:bg-green-700 p-2 rounded-lg transition-colors">
-              <ArrowLeft className="h-6 w-6" />
-            </Link>
+      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">My Notes</h1>
-              <p className="text-green-100">Interactive note-taking with math support</p>
+              <p className="text-green-100 mt-1">Interactive note-taking with math support</p>
             </div>
+            <Button 
+              onClick={() => setIsCreating(true)}
+              className="bg-white text-green-600 hover:bg-green-50 shadow-lg"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Note
+            </Button>
           </div>
-          <Button 
-            onClick={() => setIsCreating(true)}
-            className="bg-white text-green-600 hover:bg-green-50"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            New Note
-          </Button>
         </div>
       </div>
+
+      <StudentNavbar />
 
       <div className="max-w-7xl mx-auto p-6">
         {/* Search and Filter */}
