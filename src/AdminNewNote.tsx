@@ -261,7 +261,7 @@ const MarkdownPreview: React.FC<{ content: string }> = ({ content }) => {
   const formatMarkdown = (text: string) => {
     // First handle LaTeX math expressions
     let processedText = text
-      // Handle block math ($$...$$)
+      // Handle block math ($$...$$ and \[...\])
       .replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
         try {
           return katex.renderToString(math.trim(), { displayMode: true });
@@ -269,8 +269,22 @@ const MarkdownPreview: React.FC<{ content: string }> = ({ content }) => {
           return `<div class="math-error">Math Error: ${math}</div>`;
         }
       })
-      // Handle inline math ($...$)
+      .replace(/\\\[([\s\S]*?)\\\]/g, (match, math) => {
+        try {
+          return katex.renderToString(math.trim(), { displayMode: true });
+        } catch (e) {
+          return `<div class="math-error">Math Error: ${math}</div>`;
+        }
+      })
+      // Handle inline math ($...$ and \(...\))
       .replace(/\$([^$]+)\$/g, (match, math) => {
+        try {
+          return katex.renderToString(math.trim(), { displayMode: false });
+        } catch (e) {
+          return `<span class="math-error">Math Error: ${math}</span>`;
+        }
+      })
+      .replace(/\\\((.*?)\\\)/g, (match, math) => {
         try {
           return katex.renderToString(math.trim(), { displayMode: false });
         } catch (e) {

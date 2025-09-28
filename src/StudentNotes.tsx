@@ -228,8 +228,8 @@ const StudentNotes = () => {
 
         {/* Book Reading Dialog */}
         <Dialog open={isBookOpen} onOpenChange={setIsBookOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-            <DialogHeader className="border-b pb-4">
+          <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+            <DialogHeader className="border-b pb-4 flex-shrink-0">
               <DialogTitle className="flex items-center gap-2">
                 <BookOpen className="h-5 w-5 text-forest-primary" />
                 {selectedNote?.title}
@@ -245,8 +245,8 @@ const StudentNotes = () => {
                 </div>
               </div>
             </DialogHeader>
-
-            <div className="flex-1 overflow-y-auto">
+            
+            <div className="flex-1 overflow-y-auto min-h-0">
               <div className="book-content p-6">
                 <div className="max-w-3xl mx-auto">
                   <div className="prose prose-lg max-w-none">
@@ -283,7 +283,7 @@ const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
   const formatMarkdown = (text: string) => {
     // First handle LaTeX math expressions
     let processedText = text
-      // Handle block math ($$...$$)
+      // Handle block math ($$...$$ and \[...\])
       .replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
         try {
           return katex.renderToString(math.trim(), { displayMode: true });
@@ -291,8 +291,22 @@ const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
           return `<div class="math-error">Math Error: ${math}</div>`;
         }
       })
-      // Handle inline math ($...$)
+      .replace(/\\\[([\s\S]*?)\\\]/g, (match, math) => {
+        try {
+          return katex.renderToString(math.trim(), { displayMode: true });
+        } catch (e) {
+          return `<div class="math-error">Math Error: ${math}</div>`;
+        }
+      })
+      // Handle inline math ($...$ and \(...\))
       .replace(/\$([^$]+)\$/g, (match, math) => {
+        try {
+          return katex.renderToString(math.trim(), { displayMode: false });
+        } catch (e) {
+          return `<span class="math-error">Math Error: ${math}</span>`;
+        }
+      })
+      .replace(/\\\((.*?)\\\)/g, (match, math) => {
         try {
           return katex.renderToString(math.trim(), { displayMode: false });
         } catch (e) {

@@ -32,9 +32,11 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { RAGQueryRequest, ConversationMessage, MessageMetadata } from "../types";
 import { MarkdownFormatter } from "./MarkdownFormatter";
+import { ImageUpload } from "./ImageUpload";
 import { AITutorPluginProps, Message, Topic } from "../types";
 import { DEFAULT_CONFIG, QUICK_PROMPTS, SAMPLE_MESSAGES, SYSTEM_PROMPTS } from "../constants";
 import { useAITutor } from "../hooks/useAITutor";
+import { guidanceService } from "../services/guidanceService";
 
 export const AITutorPlugin: React.FC<AITutorPluginProps> = ({
   topics,
@@ -206,10 +208,18 @@ export const AITutorPlugin: React.FC<AITutorPluginProps> = ({
       if (debugMode) console.log('📊 Total messages in state:', newMessages.length);
       return newMessages;
     });
+    
     const currentQuery = inputValue;
+    const currentImageContent = pendingImageContent; // Capture current image content
+    
     setInputValue("");
     setIsTyping(true);
     setTypingStartTime(Date.now());
+
+    // Clear pending image content since we're processing it now
+    if (pendingImageContent) {
+      setPendingImageContent(null);
+    }
 
     // Call onMessageSent callback
     onMessageSent?.(userMessage);
@@ -254,10 +264,41 @@ export const AITutorPlugin: React.FC<AITutorPluginProps> = ({
       // Try RAG first, but fallback gracefully if it fails
       if (debugMode) console.log(`🔍 hasRAGContext state: ${hasRAGContext}`);
       
-      // Smart hybrid approach: Full notes on first question, conversation-only on follow-ups
+      // Check if we have image content to process along with the user query
       const selectedTopicData = topics.find(topic => topic.id === selectedTopic);
       
-      if (!hasNotesForCurrentTopic) {
+      if (currentImageContent) {
+        // User has uploaded an image and now asking a question about it
+        if (debugMode) console.log('🖼️ Processing user query with uploaded image content');
+        
+        // Combine user query with extracted image content for guidance
+        const combinedQuery = `User's question: "${currentQuery}"
+
+Extracted content from their uploaded work:
+${currentImageContent.extractedContent}
+
+Please provide educational guidance based on both their question and the work shown in the image.`;
+
+        const guidanceResult = await guidanceService.generateGuidance(
+          combinedQuery,
+          selectedTopic,
+          chatHistory
+        );
+        
+        if (guidanceResult.success) {
+          aiResponse = guidanceResult.guidance;
+          responseMetadata = {
+            chunks_used: 0,
+            best_similarity: 1.0,
+            query_time: guidanceResult.metadata.responseTime,
+            guidance_type: guidanceResult.metadata.guidanceType,
+            extracted_content: currentImageContent.extractedContent
+          };
+        } else {
+          throw new Error(guidanceResult.error || 'Failed to generate guidance for image');
+        }
+        
+      } else if (!hasNotesForCurrentTopic) {
         // First question in this topic - use full notes
         if (debugMode) console.log('📚 First question in topic - loading full notes from Firebase');
         
@@ -378,18 +419,41 @@ export const AITutorPlugin: React.FC<AITutorPluginProps> = ({
     setInputValue(prompt);
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  // Store extracted content for when user asks their question
+  const [pendingImageContent, setPendingImageContent] = useState<{
+    extractedContent: string;
+    imageFile: File;
+  } | null>(null);
 
-    // For now, show a message that file upload is not available with Firebase Functions
-    const infoMessage: Message = {
+  const handleImageProcessed = async (extractedContent: string, imageFile: File) => {
+    console.log('🖼️ Image processed successfully, waiting for user query...');
+    
+    // Store the extracted content for later use
+    setPendingImageContent({
+      extractedContent,
+      imageFile
+    });
+
+    // No messages needed - just silently store the image content
+    // The image will show as attached in the UI
+  };
+
+  const handleImageError = (error: string) => {
+    console.error('Image upload error:', error);
+    
+    const errorMessage: Message = {
       id: Date.now().toString(),
-      content: `📄 File upload is not currently available with Firebase Functions. The system is using pre-loaded content for testing. You can ask questions about the selected topic!`,
+      content: `❌ **Upload Error:** ${error}\n\nPlease try uploading a different image or check that your file meets the requirements (JPEG, PNG, GIF, or WebP under 4MB).`,
       sender: "ai",
       timestamp: new Date(),
     };
-    setMessages(prev => [...prev, infoMessage]);
+    
+    setMessages(prev => [...prev, errorMessage]);
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    // This is now handled by the ImageUpload component
+    console.log('File upload handled by ImageUpload component');
   };
 
   const formatTime = (date: Date) => {
@@ -425,12 +489,12 @@ export const AITutorPlugin: React.FC<AITutorPluginProps> = ({
           if (debugMode) console.log(`✅ Real notes fetched, length: ${realNotes.length} characters`);
           return realNotes;
         } else {
-          console.warn(`⚠️ real-notes field not found or invalid in ${documentPath}`);
+          if (debugMode) console.log(`📝 Using fallback notes for ${topic} (no Firebase notes configured)`);
           // Fallback to hardcoded notes
           return getNotesForTopic(topic);
         }
       } else {
-        console.warn(`⚠️ Document ${documentPath} does not exist`);
+        if (debugMode) console.log(`📝 Using fallback notes for ${topic} (Firebase document not found)`);
         // Fallback to hardcoded notes
         return getNotesForTopic(topic);
       }
@@ -816,6 +880,61 @@ Please provide comprehensive, detailed explanations with examples and step-by-st
 
         {/* Input Area */}
         <div className="border-t p-4 flex-shrink-0 bg-white">
+          {/* Topic Selection */}
+          <div className="mb-3">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">Topic:</label>
+              <Select value={selectedTopic} onValueChange={setSelectedTopic}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Select topic" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="probability">Probability</SelectItem>
+                  <SelectItem value="functions">Functions</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Image Upload Section */}
+          <div className="mb-3">
+            <ImageUpload
+              onImageProcessed={handleImageProcessed}
+              onError={handleImageError}
+              disabled={isTyping}
+              className="w-full"
+            />
+          </div>
+
+          {/* Attached Image Preview */}
+          {pendingImageContent && (
+            <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+              <div className="flex items-center gap-3">
+                <img
+                  src={URL.createObjectURL(pendingImageContent.imageFile)}
+                  alt="Uploaded work"
+                  className="w-16 h-16 object-cover rounded-md border border-gray-300"
+                />
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-700">
+                    📎 {pendingImageContent.imageFile.name}
+                  </div>
+                  <div className="text-xs text-green-600">
+                    ✅ Content extracted, ready for questions
+                  </div>
+                </div>
+                <button
+                  onClick={() => setPendingImageContent(null)}
+                  className="text-gray-400 hover:text-gray-600 p-1"
+                  title="Remove attachment"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Text Input Section */}
           <div className="flex gap-2">
             <div className="flex-1 relative">
               <Textarea
