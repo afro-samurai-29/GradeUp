@@ -173,15 +173,15 @@ const TutorProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-purple-600 text-white p-6">
+      <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link to="/tutor" className="hover:bg-purple-700 p-2 rounded-lg transition-colors">
+            <Link to="/tutor" className="hover:bg-forest-secondary p-2 rounded-lg transition-colors">
               <ArrowLeft className="h-6 w-6" />
             </Link>
             <div>
               <h1 className="text-3xl font-bold">My Tutor Profile</h1>
-              <p className="text-purple-100">Manage your qualifications and availability</p>
+              <p className="text-forest-light">Manage your qualifications and availability</p>
             </div>
           </div>
           {loading ? (

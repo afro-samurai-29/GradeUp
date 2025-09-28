@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read/write access to conversations for authenticated users
+    match /conversations/{conversationId} {
+      allow read, write: if request.auth != null;
+      
+      // Allow read/write access to messages within conversations
+      match /messages/{messageId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+    
+    // Allow read access to notes content for all users
+    match /notes/{document=**} {
+      allow read: if true;
+    }
+  }
+}

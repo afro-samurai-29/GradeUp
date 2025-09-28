@@ -145,7 +145,7 @@ const TutorDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-blue-600 text-white p-6">
+      <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
@@ -210,21 +210,21 @@ const TutorDashboard = () => {
                 <Link
                   key={index}
                   to={action.href}
-                  className="block p-6 rounded-lg border hover:shadow-md transition-all group hover:border-blue-500"
+                  className="block p-6 rounded-lg border hover:shadow-md transition-all group hover:border-forest-light"
                 >
                   <div className="flex items-center space-x-4">
                     <div className={`${action.color} p-3 rounded-full text-white group-hover:scale-110 transition-transform`}>
                       <action.icon className="h-6 w-6" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg group-hover:text-blue-600 transition-colors">
+                      <h3 className="font-semibold text-lg group-hover:text-forest-primary transition-colors">
                         {action.label}
                       </h3>
                       <p className="text-sm text-muted-foreground mt-1">
                         {action.description}
                       </p>
                       {action.count && (
-                        <Badge className="mt-2 bg-red-100 text-red-800">
+                        <Badge className="mt-2 bg-forest-light text-forest-primary">
                           {action.count}
                         </Badge>
                       )}
@@ -287,7 +287,7 @@ const TutorDashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Award className="h-5 w-5 mr-2 text-yellow-600" />
+                <Award className="h-5 w-5 mr-2 text-forest-secondary" />
                 Your Impact
               </CardTitle>
             </CardHeader>
@@ -306,8 +306,8 @@ const TutorDashboard = () => {
                   <span className="font-semibold">{stats.positiveFeedbackRate}%</span>
                 </div>
               </div>
-              <div className="mt-4 p-3 bg-yellow-50 rounded-lg">
-                <p className="text-sm text-yellow-800">
+              <div className="mt-4 p-3 bg-forest-light rounded-lg">
+                <p className="text-sm text-forest-primary">
                   🎉 You're in the top 10% of active tutors this month!
                 </p>
               </div>
@@ -317,23 +317,23 @@ const TutorDashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <TrendingUp className="h-5 w-5 mr-2 text-green-600" />
+                <TrendingUp className="h-5 w-5 mr-2 text-forest-primary" />
                 Recent Feedback
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="p-3 bg-green-50 rounded-lg">
+                <div className="p-3 bg-forest-light rounded-lg">
                   <div className="flex items-center mb-1">
                     <span className="text-sm font-semibold">Maria S.</span>
-                    <div className="ml-auto text-yellow-500">⭐⭐⭐⭐⭐</div>
+                    <div className="ml-auto text-forest-secondary">⭐⭐⭐⭐⭐</div>
                   </div>
                   <p className="text-sm text-gray-600">"Sarah explained physics so clearly! Finally understand momentum."</p>
                 </div>
-                <div className="p-3 bg-blue-50 rounded-lg">
+                <div className="p-3 bg-forest-light rounded-lg">
                   <div className="flex items-center mb-1">
                     <span className="text-sm font-semibold">John D.</span>
-                    <div className="ml-auto text-yellow-500">⭐⭐⭐⭐⭐</div>
+                    <div className="ml-auto text-forest-secondary">⭐⭐⭐⭐⭐</div>
                   </div>
                   <p className="text-sm text-gray-600">"Patient and helpful. Made math actually make sense!"</p>
                 </div>

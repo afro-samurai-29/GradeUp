@@ -3,7 +3,7 @@ import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { db } from "./firebase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import StudentNavbar from "@/components/StudentNavbar";
+import StudentLayout from "@/components/StudentLayout";
 import { BookOpen, FileText, MessageCircle, Clock, Users, Calendar, Target, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -146,21 +146,23 @@ const StudentDashboard = () => {
   if (loading) return <p className="p-6">Loading...</p>;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
-        <div className="max-w-7xl mx-auto flex justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Student Dashboard</h1>
-            <p className="text-green-100 mt-1">Welcome back! Ready to continue your learning journey?</p>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold">4.2</div>
-            <div className="text-sm text-green-100">Average Grade</div>
+    <StudentLayout>
+      {/* Header */}
+      <div className="gradient-forest text-white p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Student Dashboard</h1>
+              <p className="text-forest-light mt-1">Welcome back! Ready to continue your learning journey?</p>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold">4.2</div>
+              <div className="text-sm text-forest-light">Average Grade</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <StudentNavbar />
 
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Stats Overview */}
@@ -199,6 +201,7 @@ const StudentDashboard = () => {
         </div>
 
         {/* Quick Actions */}
+        {/* Quick Actions (removed '+ New Note' button) */}
         <Card>
           <CardHeader>
             <CardTitle className="text-foreground">Quick Actions</CardTitle>
@@ -256,7 +259,7 @@ const StudentDashboard = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </StudentLayout>
   );
 };
 

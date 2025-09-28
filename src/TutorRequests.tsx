@@ -138,15 +138,15 @@ const TutorRequests = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-blue-600 text-white p-6">
+      <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link to="/tutor" className="hover:bg-blue-700 p-2 rounded-lg transition-colors">
+            <Link to="/tutor" className="hover:bg-forest-secondary p-2 rounded-lg transition-colors">
               <ArrowLeft className="h-6 w-6" />
             </Link>
             <div>
               <h1 className="text-3xl font-bold">Help Requests</h1>
-              <p className="text-blue-100">Review and respond to student questions</p>
+              <p className="text-forest-light">Review and respond to student questions</p>
             </div>
           </div>
         </div>
