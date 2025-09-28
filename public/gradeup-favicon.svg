@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#16a34a"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#g)"/>
+  <g fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="4">
+    <!-- Open book icon styled to match lucide-react BookOpen -->
+    <path d="M10 22v20a4 4 0 0 0 4 4h16V18H14a4 4 0 0 0-4 4Z"/>
+    <path d="M54 22v20a4 4 0 0 1-4 4H34V18h16a4 4 0 0 1 4 4Z"/>
+  </g>
+</svg>
+
+

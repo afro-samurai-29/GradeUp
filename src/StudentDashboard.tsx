@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
-import { db } from "@/firebase";
+import { db } from "./firebase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import StudentNavbar from "@/components/StudentNavbar";
-import { BookOpen, FileText, MessageCircle, Clock } from "lucide-react";
+import { BookOpen, FileText, MessageCircle, Clock, Users, Calendar, Target, HelpCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const StudentDashboard = () => {
   const [stats, setStats] = useState({
@@ -15,6 +16,46 @@ const StudentDashboard = () => {
   });
   const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Quick actions data
+  const quickActions = [
+    {
+      icon: BookOpen,
+      label: "Study Notes",
+      description: "Access your study materials",
+      href: "/student/notes"
+    },
+    {
+      icon: FileText,
+      label: "Past Papers",
+      description: "Download exam papers",
+      href: "/student/past-papers"
+    },
+    {
+      icon: Users,
+      label: "Find Tutors",
+      description: "Connect with tutors",
+      href: "/student/tutors"
+    },
+    {
+      icon: Calendar,
+      label: "Deadlines",
+      description: "Track important dates",
+      href: "/student/deadlines"
+    },
+    {
+      icon: Target,
+      label: "Study Goals",
+      description: "Set and track goals",
+      href: "/student/goals"
+    },
+    {
+      icon: HelpCircle,
+      label: "Get Help",
+      description: "Ask questions",
+      href: "/student/support"
+    }
+  ];
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -156,6 +197,38 @@ const StudentDashboard = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-foreground">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {quickActions.map((action, index) => (
+                <Link
+                  key={index}
+                  to={action.href}
+                  className="block p-6 rounded-lg border hover:shadow-md transition-all group hover:border-forest-light"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className={`bg-forest-primary p-3 rounded-full text-white group-hover:scale-110 transition-transform`}>
+                      <action.icon className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg group-hover:text-forest-primary transition-colors">
+                        {action.label}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {action.description}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Recent Activity */}
         <Card>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
@@ -21,15 +21,20 @@ import {
 
 const StudentNavbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
+  const handleLogout = () => {
+    navigate('/');
+  };
+
   const navItems = [
-    { path: '/student', label: 'Dashboard', icon: Home, color: 'from-green-500 to-green-600' },
-    { path: '/student/notes', label: 'Study Notes', icon: BookOpen, color: 'from-green-500 to-green-600' },
-    { path: '/student/past-papers', label: 'Past Papers', icon: FileText, color: 'from-green-500 to-green-600' },
-    { path: '/student/requests', label: 'Help Requests', icon: MessageCircle, color: 'from-green-500 to-green-600' },
-    { path: '/student/information', label: 'Information', icon: Info, color: 'from-green-500 to-green-600' },
+    { path: '/student', label: 'Dashboard', icon: Home },
+    { path: '/student/notes', label: 'Study Notes', icon: BookOpen },
+    { path: '/student/past-papers', label: 'Past Papers', icon: FileText },
+    { path: '/student/requests', label: 'Help Requests', icon: MessageCircle },
+    { path: '/student/information', label: 'Information', icon: Info },
   ];
 
   const isActive = (path: string) => {
@@ -47,9 +52,11 @@ const StudentNavbar = () => {
       <Link 
         to={item.path} 
         onClick={() => isMobile && setSidebarOpen(false)}
-        className={`group relative flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+        className={`group relative flex items-center ${
+          !isMobile && collapsed ? 'justify-center space-x-0' : 'space-x-3'
+        } px-4 py-3 rounded-xl transition-all duration-300 ${
           active 
-            ? `bg-gradient-to-r ${item.color} text-white shadow-lg` 
+            ? 'gradient-forest text-white shadow-lg' 
             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
         } ${isMobile ? 'w-full' : 'w-full'}`}
       >
@@ -58,7 +65,7 @@ const StudentNavbar = () => {
             ? 'bg-white/20' 
             : 'bg-gray-100 group-hover:bg-white'
         }`}>
-          <Icon className={`h-5 w-5 transition-colors ${
+          <Icon className={`${!isMobile && collapsed ? 'h-6 w-6' : 'h-5 w-5'} transition-colors ${
             active ? 'text-white' : 'text-gray-600 group-hover:text-gray-900'
           }`} />
         </div>
@@ -85,9 +92,9 @@ const StudentNavbar = () => {
         {/* Sidebar Header */}
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            {!collapsed && (
+              {!collapsed && (
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 gradient-forest rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-sm">G</span>
                 </div>
                 <span className="font-bold text-gray-900">GradeUp</span>
@@ -129,10 +136,10 @@ const StudentNavbar = () => {
           {/* Profile */}
           <Link 
             to="/student/profile" 
-            className={`flex items-center space-x-3 px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 ${collapsed ? 'px-2' : 'px-4'}`}
+            className={`flex items-center ${collapsed ? 'justify-center space-x-0 px-2' : 'space-x-3 px-4'} py-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300`}
           >
-            <div className="p-1.5 bg-gradient-to-r from-green-500 to-green-600 rounded-lg">
-              <User className="h-4 w-4 text-white" />
+            <div className="p-1.5 gradient-forest rounded-lg">
+              <User className={`${collapsed ? 'h-6 w-6' : 'h-4 w-4'} text-white`} />
             </div>
             {!collapsed && <span className="font-medium">Profile</span>}
           </Link>
@@ -152,6 +159,7 @@ const StudentNavbar = () => {
             variant="outline" 
             size="sm"
             className={`w-full justify-start ${collapsed ? 'px-2' : 'px-4'} text-gray-600 hover:text-red-600 hover:border-red-300 hover:bg-red-50 border-gray-200`}
+            onClick={handleLogout}
           >
             <LogOut className="h-4 w-4" />
             {!collapsed && <span className="ml-3">Logout</span>}
@@ -175,7 +183,7 @@ const StudentNavbar = () => {
                 {/* Mobile Header */}
                 <div className="p-4 border-b border-gray-200">
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 gradient-forest rounded-lg flex items-center justify-center">
                       <span className="text-white font-bold text-sm">G</span>
                     </div>
                     <span className="font-bold text-gray-900">GradeUp</span>
@@ -226,7 +234,8 @@ const StudentNavbar = () => {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    className="w-full justify-start px-4 text-gray-600 hover:text-red-600 hover:border-red-300 hover:bg-red-50 border-gray-200"
+                  className="w-full justify-start px-4 text-gray-600 hover:text-red-600 hover:border-red-300 hover:bg-red-50 border-gray-200"
+                  onClick={() => { setSidebarOpen(false); handleLogout(); }}
                   >
                     <LogOut className="h-4 w-4" />
                     <span className="ml-3">Logout</span>

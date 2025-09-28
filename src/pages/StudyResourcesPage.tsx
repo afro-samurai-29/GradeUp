@@ -27,9 +27,9 @@ const StudyResourcesPage = () => {
     const [filteredResources, setFilteredResources] = useState<StudyResource[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedSubject, setSelectedSubject] = useState('');
-    const [selectedType, setSelectedType] = useState('');
-    const [selectedDifficulty, setSelectedDifficulty] = useState('');
+    const [selectedSubject, setSelectedSubject] = useState('all');
+    const [selectedType, setSelectedType] = useState('all');
+    const [selectedDifficulty, setSelectedDifficulty] = useState('all');
     const [showFreeOnly, setShowFreeOnly] = useState(false);
 
     const subjects = [
@@ -63,7 +63,11 @@ const StudyResourcesPage = () => {
     const loadResources = async () => {
         try {
             setLoading(true);
-            const data = await getStudyResources(selectedSubject, selectedType, showFreeOnly ? true : undefined);
+            const data = await getStudyResources(
+                selectedSubject !== 'all' ? selectedSubject : undefined,
+                selectedType !== 'all' ? selectedType : undefined,
+                showFreeOnly ? true : undefined
+            );
             setResources(data);
         } catch (error) {
             console.error('Error loading resources:', error);
@@ -83,15 +87,15 @@ const StudyResourcesPage = () => {
             );
         }
 
-        if (selectedSubject) {
+        if (selectedSubject && selectedSubject !== 'all') {
             filtered = filtered.filter(resource => resource.subject === selectedSubject);
         }
 
-        if (selectedType) {
+        if (selectedType && selectedType !== 'all') {
             filtered = filtered.filter(resource => resource.type === selectedType);
         }
 
-        if (selectedDifficulty) {
+        if (selectedDifficulty && selectedDifficulty !== 'all') {
             filtered = filtered.filter(resource => resource.difficulty === selectedDifficulty);
         }
 
@@ -175,7 +179,7 @@ const StudyResourcesPage = () => {
                                     <SelectValue placeholder="All Subjects" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Subjects</SelectItem>
+                                    <SelectItem value="all">All Subjects</SelectItem>
                                     {subjects.map(subject => (
                                         <SelectItem key={subject} value={subject}>
                                             {subject}
@@ -188,7 +192,7 @@ const StudyResourcesPage = () => {
                                     <SelectValue placeholder="All Types" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Types</SelectItem>
+                                    <SelectItem value="all">All Types</SelectItem>
                                     {resourceTypes.map(type => (
                                         <SelectItem key={type.value} value={type.value}>
                                             {type.label}
@@ -201,7 +205,7 @@ const StudyResourcesPage = () => {
                                     <SelectValue placeholder="All Levels" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Levels</SelectItem>
+                                    <SelectItem value="all">All Levels</SelectItem>
                                     {difficulties.map(diff => (
                                         <SelectItem key={diff.value} value={diff.value}>
                                             {diff.label}

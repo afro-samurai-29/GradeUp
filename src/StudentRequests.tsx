@@ -34,16 +34,16 @@ const StudentRequests = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
+      <div className="gradient-forest text-white p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Help Requests</h1>
-              <p className="text-green-100 mt-1">Get help from volunteer tutors</p>
+              <p className="text-forest-light mt-1">Get help from volunteer tutors</p>
             </div>
             <Button 
               onClick={() => setShowNewRequest(true)}
-              className="bg-white text-green-600 hover:bg-green-50 shadow-lg"
+              className="bg-white text-forest-primary hover:bg-forest-light shadow-lg"
             >
               <Plus className="h-4 w-4 mr-2" />
               New Request

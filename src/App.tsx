@@ -49,7 +49,8 @@ const App = () => (
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          
+          <Route path="/resources" element={<StudyResourcesPage />} />
+
           {/* Student Routes */}
           <Route path="/student" element={<StudentDashboard />} />
           <Route path="/student/notes" element={<StudentNotes />} />
@@ -57,12 +58,12 @@ const App = () => (
           <Route path="/student/profile" element={<StudentProfile />} />
           <Route path="/student/requests" element={<StudentRequests />} />
           <Route path="/student/information" element={<StudentInformation />} />
-          
+
           {/* Tutor Routes */}
           <Route path="/tutor" element={<TutorDashboard />} />
           <Route path="/tutor/profile" element={<TutorProfile />} />
           <Route path="/tutor/requests" element={<TutorRequests />} />
-          
+
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<AdminUsers />} />
@@ -70,7 +71,7 @@ const App = () => (
           <Route path="/admin/analytics" element={<AdminAnalytics />} />
           <Route path="/admin/support" element={<AdminSupport />} />
           <Route path="/admin/profile" element={<AdminProfile />} />
-          
+
           <Route path="*" element={<NotFound />} />
         </Routes>
         <AIChatbox />

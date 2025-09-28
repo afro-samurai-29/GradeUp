@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import StudentNavbar from '@/components/StudentNavbar';
-import { db } from '@/firebase';
-import { collection, getDocs } from 'firebase/firestore';
-import { Plus, Search, BookOpen, Edit, Trash2, FileText } from 'lucide-react';
+import { db } from './firebase';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { Plus, Search, BookOpen, Edit, Trash2, FileText, X, Save } from 'lucide-react';
 
 interface Note {
   id: string;
@@ -26,6 +27,13 @@ const StudentNotes: React.FC = () => {
   const [expandedNote, setExpandedNote] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('all');
+  const [isCreating, setIsCreating] = useState(false);
+  const [newNote, setNewNote] = useState({
+    title: '',
+    subject: '',
+    content: '',
+    tags: ''
+  });
 
   // Fetch notes from all subjects' notes subcollections
   useEffect(() => {
@@ -85,12 +93,50 @@ const StudentNotes: React.FC = () => {
     setExpandedNote(isExpanded ? null : noteId);
   };
 
+  // Create new note
+  const handleCreateNote = async () => {
+    if (!newNote.title || !newNote.subject || !newNote.content) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      const noteData = {
+        title: newNote.title,
+        content: newNote.content,
+        tags: newNote.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        difficulty: 'beginner',
+        isFree: true,
+        currency: 'ZAR',
+        uploadedBy: 'current-user', // You might want to get this from auth
+        isApproved: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      await addDoc(collection(db, 'resources', newNote.subject, 'notes'), noteData);
+
+      // Reset form
+      setNewNote({ title: '', subject: '', content: '', tags: '' });
+      setIsCreating(false);
+
+      // Refresh notes list
+      window.location.reload(); // Simple refresh - you could optimize this
+    } catch (error) {
+      console.error('Error creating note:', error);
+      alert('Failed to create note');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <h1 className="text-3xl font-bold">My Notes</h1>
-          <Button className="bg-white text-green-600 hover:bg-green-50 shadow-lg">
+          <Button
+            onClick={() => setIsCreating(true)}
+            className="bg-white text-green-600 hover:bg-green-50 shadow-lg"
+          >
             <Plus className="h-4 w-4 mr-2" /> New Note
           </Button>
         </div>
@@ -123,9 +169,66 @@ const StudentNotes: React.FC = () => {
           </CardContent>
         </Card>
 
-        {loading ? (
-          <div>Loading...</div>
-        ) : filteredNotes.length === 0 ? (
+        {/* Create New Note Modal */}
+        {isCreating && (
+          <Card className="mb-6 border-2 border-forest-accent">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-forest-primary">Create New Note</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsCreating(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  placeholder="Note title"
+                  value={newNote.title}
+                  onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
+                />
+                <select
+                  value={newNote.subject}
+                  onChange={(e) => setNewNote({ ...newNote, subject: e.target.value })}
+                  className="px-3 py-2 border rounded-md bg-background"
+                >
+                  <option value="">Select Subject</option>
+                  {subjects.map(subject => (
+                    <option key={subject} value={subject}>{subject}</option>
+                  ))}
+                </select>
+              </div>
+              <Input
+                placeholder="Tags (comma-separated)"
+                value={newNote.tags}
+                onChange={(e) => setNewNote({ ...newNote, tags: e.target.value })}
+              />
+              <Textarea
+                placeholder="Write your notes here..."
+                value={newNote.content}
+                onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
+                rows={6}
+              />
+              <div className="flex gap-2">
+                <Button onClick={handleCreateNote} className="bg-forest-primary hover:bg-forest-secondary">
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Note
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsCreating(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Notes Grid */}
+        {filteredNotes.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
               <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />

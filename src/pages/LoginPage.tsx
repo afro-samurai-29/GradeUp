@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { BookOpen, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-import { auth, db } from '../firebaseConfig';
+import { auth, db } from '../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 
@@ -29,7 +29,7 @@ const LoginPage = () => {
 
       // Get user data from Firestore to determine role
       const userDoc = await getDoc(doc(db, "users", user.uid));
-      
+
       if (userDoc.exists()) {
         const userData = userDoc.data();
         const userRole = userData.role;
@@ -111,7 +111,7 @@ const LoginPage = () => {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input

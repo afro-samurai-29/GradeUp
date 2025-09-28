@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Users, 
-  MessageCircle, 
-  User, 
+import { db } from './firebase';
+import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { auth } from './firebase';
+import {
+  Users,
+  MessageCircle,
+  User,
   Clock,
   CheckCircle,
   AlertCircle,
@@ -17,10 +20,126 @@ import {
 } from 'lucide-react';
 
 const TutorDashboard = () => {
+  const [stats, setStats] = useState({
+    activeRequests: 0,
+    completedRequests: 0,
+    averageRating: 0,
+    avgResponseTime: '0h',
+    studentsHelped: 0,
+    totalHours: 0,
+    positiveFeedbackRate: 0
+  });
+  const [recentRequests, setRecentRequests] = useState([]);
+  const [tutorProfile, setTutorProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTutorData = async () => {
+      try {
+        const user = auth.currentUser;
+        if (!user) {
+          setLoading(false);
+          return;
+        }
+
+        // Get tutor profile
+        const tutorSnapshot = await getDocs(query(collection(db, 'tutors'), where('userId', '==', user.uid)));
+        if (!tutorSnapshot.empty) {
+          const tutorData = tutorSnapshot.docs[0].data();
+          setTutorProfile(tutorData);
+        }
+
+        // Get tutoring sessions for this tutor
+        const sessionsSnapshot = await getDocs(query(collection(db, 'tutoringSessions'), where('tutorId', '==', user.uid)));
+
+        let activeCount = 0;
+        let completedCount = 0;
+        let totalRating = 0;
+        let ratingCount = 0;
+        let totalResponseTime = 0;
+        let responseCount = 0;
+        const uniqueStudents = new Set();
+        let totalHours = 0;
+
+        sessionsSnapshot.forEach(doc => {
+          const session = doc.data();
+
+          if (session.status === 'pending' || session.status === 'confirmed') {
+            activeCount++;
+          } else if (session.status === 'completed') {
+            completedCount++;
+            if (session.rating) {
+              totalRating += session.rating;
+              ratingCount++;
+            }
+            if (session.duration) {
+              totalHours += session.duration / 60; // Convert minutes to hours
+            }
+          }
+
+          uniqueStudents.add(session.studentId);
+        });
+
+        // Get recent requests (mock for now - you might want to create a requests collection)
+        const mockRequests = [
+          {
+            id: '1',
+            title: 'Quadratic Equations Help',
+            subject: 'Mathematics',
+            studentName: 'John D.',
+            status: 'pending',
+            priority: 'high',
+            timeAgo: '2h ago',
+            description: 'I\'m struggling with the quadratic formula...'
+          },
+          {
+            id: '2',
+            title: 'Physics Motion Problems',
+            subject: 'Physical Sciences',
+            studentName: 'Maria S.',
+            status: 'in-progress',
+            priority: 'medium',
+            timeAgo: '1 day ago',
+            description: 'Need help with projectile motion...'
+          },
+          {
+            id: '3',
+            title: 'English Essay Structure',
+            subject: 'English',
+            studentName: 'David M.',
+            status: 'completed',
+            priority: 'low',
+            timeAgo: '3 days ago',
+            description: 'Help with essay writing...',
+            rating: 5.0
+          }
+        ];
+
+        setStats({
+          activeRequests: activeCount,
+          completedRequests: completedCount,
+          averageRating: ratingCount > 0 ? parseFloat((totalRating / ratingCount).toFixed(1)) : 0,
+          avgResponseTime: '2.5h', // Mock data
+          studentsHelped: uniqueStudents.size,
+          totalHours: Math.round(totalHours),
+          positiveFeedbackRate: ratingCount > 0 ? Math.round((ratingCount / completedCount) * 100) : 0
+        });
+
+        setRecentRequests(mockRequests);
+      } catch (error) {
+        console.error('Error fetching tutor data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTutorData();
+  }, []);
+
   const quickActions = [
-    { icon: MessageCircle, label: "Help Requests", href: "/tutor/requests", color: "bg-blue-500", description: "View and respond to student questions", count: "5 pending" },
+    { icon: MessageCircle, label: "Help Requests", href: "/tutor/requests", color: "bg-blue-500", description: "View and respond to student questions", count: `${stats.activeRequests} pending` },
     { icon: User, label: "My Profile", href: "/tutor/profile", color: "bg-purple-500", description: "Manage your tutoring profile and subjects" },
-    { icon: BookOpen, label: "Resources", href: "/tutor/resources", color: "bg-green-500", description: "Access teaching materials and guides" },
+    { icon: BookOpen, label: "Study Resources", href: "/resources", color: "bg-green-500", description: "Access teaching materials and guides" },
   ];
 
   return (
@@ -31,10 +150,13 @@ const TutorDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold mb-2">Tutor Dashboard</h1>
-              <p className="text-blue-100">Welcome back, Sarah! Thank you for volunteering your time to help students succeed.</p>
+              <p className="text-blue-100">
+                Welcome back{tutorProfile ? `, ${tutorProfile.bio?.split(' ')[0] || 'Tutor'}` : ''}!
+                Thank you for volunteering your time to help students succeed.
+              </p>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold">47</div>
+              <div className="text-2xl font-bold">{stats.studentsHelped}</div>
               <div className="text-sm text-blue-100">Students Helped</div>
             </div>
           </div>
@@ -47,31 +169,31 @@ const TutorDashboard = () => {
           <Card>
             <CardContent className="p-6 text-center">
               <MessageCircle className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-800">12</div>
+              <div className="text-2xl font-bold text-gray-800">{stats.activeRequests}</div>
               <div className="text-sm text-gray-600">Active Requests</div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6 text-center">
               <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-800">35</div>
+              <div className="text-2xl font-bold text-gray-800">{stats.completedRequests}</div>
               <div className="text-sm text-gray-600">Requests Completed</div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6 text-center">
               <Heart className="h-8 w-8 text-red-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-800">4.8</div>
+              <div className="text-2xl font-bold text-gray-800">{stats.averageRating}</div>
               <div className="text-sm text-gray-600">Average Rating</div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6 text-center">
               <Clock className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-800">2.5h</div>
+              <div className="text-2xl font-bold text-gray-800">{stats.avgResponseTime}</div>
               <div className="text-sm text-gray-600">Avg Response Time</div>
             </CardContent>
           </Card>
@@ -121,47 +243,41 @@ const TutorDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-start gap-4 p-4 border rounded-lg">
-                <div className="bg-orange-100 p-2 rounded-full">
-                  <AlertCircle className="h-4 w-4 text-orange-600" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-semibold">Help with Quadratic Equations</h4>
-                    <Badge className="bg-orange-100 text-orange-800">Pending</Badge>
+              {loading ? (
+                <div className="text-center py-4">Loading requests...</div>
+              ) : recentRequests.length === 0 ? (
+                <div className="text-center py-4 text-gray-500">No recent requests</div>
+              ) : (
+                recentRequests.map((request) => (
+                  <div key={request.id} className="flex items-start gap-4 p-4 border rounded-lg">
+                    <div className={`p-2 rounded-full ${request.status === 'pending' ? 'bg-orange-100' :
+                      request.status === 'in-progress' ? 'bg-blue-100' :
+                        'bg-green-100'
+                      }`}>
+                      {request.status === 'pending' ? <AlertCircle className="h-4 w-4 text-orange-600" /> :
+                        request.status === 'in-progress' ? <User className="h-4 w-4 text-blue-600" /> :
+                          <CheckCircle className="h-4 w-4 text-green-600" />}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-semibold">{request.title}</h4>
+                        <Badge className={`${request.status === 'pending' ? 'bg-orange-100 text-orange-800' :
+                          request.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
+                            'bg-green-100 text-green-800'
+                          }`}>
+                          {request.status === 'in-progress' ? 'In Progress' :
+                            request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">{request.subject} • Student: {request.studentName}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {request.timeAgo}
+                        {request.rating && ` • ⭐ ${request.rating} rating`}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">Mathematics • Student: John D.</p>
-                  <p className="text-xs text-gray-500 mt-1">2 hours ago</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4 p-4 border rounded-lg">
-                <div className="bg-blue-100 p-2 rounded-full">
-                  <User className="h-4 w-4 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-semibold">Physics Motion Problems</h4>
-                    <Badge className="bg-blue-100 text-blue-800">In Progress</Badge>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-1">Physical Sciences • Student: Maria S.</p>
-                  <p className="text-xs text-gray-500 mt-1">1 day ago</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4 p-4 border rounded-lg">
-                <div className="bg-green-100 p-2 rounded-full">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-semibold">English Essay Structure</h4>
-                    <Badge className="bg-green-100 text-green-800">Completed</Badge>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-1">English • Student: David M.</p>
-                  <p className="text-xs text-gray-500 mt-1">3 days ago • ⭐ 5.0 rating</p>
-                </div>
-              </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -179,15 +295,15 @@ const TutorDashboard = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Students helped this month</span>
-                  <span className="font-semibold">12</span>
+                  <span className="font-semibold">{stats.studentsHelped}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Total study hours supported</span>
-                  <span className="font-semibold">47h</span>
+                  <span className="font-semibold">{stats.totalHours}h</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Positive feedback rate</span>
-                  <span className="font-semibold">96%</span>
+                  <span className="font-semibold">{stats.positiveFeedbackRate}%</span>
                 </div>
               </div>
               <div className="mt-4 p-3 bg-yellow-50 rounded-lg">

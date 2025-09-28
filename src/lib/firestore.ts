@@ -14,7 +14,7 @@ import {
     DocumentSnapshot,
     QueryConstraint,
 } from 'firebase/firestore';
-import { db } from './firebase';
+import { db } from '../firebase';
 import {
     User,
     RewriteCenter,
@@ -121,22 +121,31 @@ export const getStudyResources = async (
     type?: string,
     isFree?: boolean
 ): Promise<StudyResource[]> => {
-    const constraints: QueryConstraint[] = [
+    // Start with basic approved filter
+    let constraints: QueryConstraint[] = [
         where('isApproved', '==', true),
-        orderBy('downloadCount', 'desc'),
     ];
 
+    // Add subject filter if provided
     if (subject) {
         constraints.push(where('subject', '==', subject));
     }
+
+    // Get documents with current constraints
+    let resources = await getDocuments<StudyResource>('studyResources', constraints);
+
+    // Apply additional filters in memory to avoid composite index requirements
     if (type) {
-        constraints.push(where('type', '==', type));
+        resources = resources.filter(resource => resource.type === type);
     }
     if (isFree !== undefined) {
-        constraints.push(where('isFree', '==', isFree));
+        resources = resources.filter(resource => resource.isFree === isFree);
     }
 
-    return getDocuments<StudyResource>('studyResources', constraints);
+    // Sort by download count
+    resources.sort((a, b) => (b.downloadCount || 0) - (a.downloadCount || 0));
+
+    return resources;
 };
 
 export const getStudyResourceById = async (id: string): Promise<StudyResource | null> => {
