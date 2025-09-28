@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +21,12 @@ import {
 } from 'lucide-react';
 
 const TutorDashboard = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    navigate('/');
+  };
+
   const [stats, setStats] = useState({
     activeRequests: 0,
     completedRequests: 0,
@@ -159,6 +165,15 @@ const TutorDashboard = () => {
             <div className="text-right">
               <div className="text-2xl font-bold">{stats.studentsHelped}</div>
               <div className="text-sm text-blue-100">Students Helped</div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="mt-4 text-black border-white bg-white hover:bg-gray-100 hover:text-black"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
             </div>
           </div>
         </div>

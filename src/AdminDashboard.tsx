@@ -72,7 +72,7 @@ const AdminDashboard = () => {
             <Button 
               variant="outline" 
               size="sm"
-              className="text-white border-white hover:bg-white hover:text-forest-primary"
+              className="text-black border-white bg-white hover:bg-gray-100 hover:text-black"
               onClick={handleLogout}
             >
               <LogOut className="h-4 w-4 mr-2" />
