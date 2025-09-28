@@ -20,6 +20,8 @@ export interface Message {
     topics?: string[];
     urgency?: 'low' | 'medium' | 'high';
     isRAGContext?: boolean;
+    guidance_type?: 'hint' | 'error_correction' | 'method_suggestion' | 'encouragement';
+    extracted_content?: string;
     ragChunks?: Array<{
       chunkId: string;
       chunkIndex: number;
@@ -74,6 +76,8 @@ export interface MessageMetadata {
   query_time?: number;
   urgency?: 'low' | 'medium' | 'high';
   isRAGContext?: boolean;
+  guidance_type?: 'hint' | 'error_correction' | 'method_suggestion' | 'encouragement';
+  extracted_content?: string;
   ragChunks?: Array<{
     chunkId: string;
     chunkIndex: number;
