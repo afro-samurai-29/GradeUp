@@ -487,3 +487,4 @@ const StudyResourcesPage = () => {
 };
 
 export default StudyResourcesPage;
+

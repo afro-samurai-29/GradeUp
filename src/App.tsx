@@ -15,10 +15,26 @@ import NotFound from "./pages/NotFound";
 import AIChatbox from './components/AIChatbox';
 
 
-// Role-based Dashboard Components
+// Student Components
 import StudentDashboard from "./StudentDashboard";
+import StudentNotes from "./StudentNotes";
+import StudentPastPapers from "./StudentPastPapers";
+import StudentProfile from "./StudentProfile";
+import StudentRequests from "./StudentRequests";
+import StudentInformation from "./StudentInformation";
+
+// Tutor Components
 import TutorDashboard from "./TutorDashboard";
+import TutorProfile from "./TutorProfile";
+import TutorRequests from "./TutorRequests";
+
+// Admin Components
 import AdminDashboard from "./AdminDashboard";
+import AdminUsers from "./AdminUsers";
+import AdminContent from "./AdminContent";
+import AdminAnalytics from "./AdminAnalytics";
+import AdminSupport from "./AdminSupport";
+import AdminProfile from "./AdminProfile";
 
 const queryClient = new QueryClient();
 
@@ -34,10 +50,26 @@ const App = () => (
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           
-          {/* Role-based Dashboard Routes */}
-          <Route path="/student/dashboard" element={<StudentDashboard />} />
-          <Route path="/tutor/dashboard" element={<TutorDashboard />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          {/* Student Routes */}
+          <Route path="/student" element={<StudentDashboard />} />
+          <Route path="/student/notes" element={<StudentNotes />} />
+          <Route path="/student/past-papers" element={<StudentPastPapers />} />
+          <Route path="/student/profile" element={<StudentProfile />} />
+          <Route path="/student/requests" element={<StudentRequests />} />
+          <Route path="/student/information" element={<StudentInformation />} />
+          
+          {/* Tutor Routes */}
+          <Route path="/tutor" element={<TutorDashboard />} />
+          <Route path="/tutor/profile" element={<TutorProfile />} />
+          <Route path="/tutor/requests" element={<TutorRequests />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/content" element={<AdminContent />} />
+          <Route path="/admin/analytics" element={<AdminAnalytics />} />
+          <Route path="/admin/support" element={<AdminSupport />} />
+          <Route path="/admin/profile" element={<AdminProfile />} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

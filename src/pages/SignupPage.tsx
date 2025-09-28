@@ -79,11 +79,11 @@ const SignupPage = () => {
 
       // Navigate to appropriate dashboard based on role
       if (formData.role === 'learner') {
-        navigate('/student/dashboard');
+        navigate('/student');
       } else if (formData.role === 'tutor') {
-        navigate('/tutor/dashboard');
+        navigate('/tutor');
       } else if (formData.role === 'admin') {
-        navigate('/admin/dashboard');
+        navigate('/admin');
       }
 
       // Reset form

@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { 
-  ArrowLeft, 
-  Download, 
-  Search, 
-  BookOpen, 
+import StudentNavbar from '@/components/StudentNavbar';
+import { db } from '@/firebase';
+import { collection, getDocs } from 'firebase/firestore';
+import {
+  ArrowLeft,
+  Download,
+  Search,
+  BookOpen,
   Calendar,
   FileText,
   Star,
@@ -31,73 +34,8 @@ interface PastPaper {
 }
 
 const StudentPastPapers = () => {
-  const [pastPapers] = useState<PastPaper[]>([
-    {
-      id: '1',
-      subject: 'Mathematics',
-      year: 2023,
-      paper: 'Paper 1',
-      type: 'exam',
-      term: 'November',
-      difficulty: 'hard',
-      downloadCount: 1247,
-      rating: 4.5,
-      fileSize: '2.3 MB',
-      addedDate: '2024-01-15'
-    },
-    {
-      id: '2',
-      subject: 'Mathematics',
-      year: 2023,
-      paper: 'Paper 1 Memo',
-      type: 'memo',
-      term: 'November',
-      difficulty: 'medium',
-      downloadCount: 1156,
-      rating: 4.7,
-      fileSize: '1.8 MB',
-      addedDate: '2024-01-15'
-    },
-    {
-      id: '3',
-      subject: 'English',
-      year: 2023,
-      paper: 'Paper 1',
-      type: 'exam',
-      term: 'November',
-      difficulty: 'medium',
-      downloadCount: 892,
-      rating: 4.2,
-      fileSize: '1.5 MB',
-      addedDate: '2024-01-12'
-    },
-    {
-      id: '4',
-      subject: 'Physical Sciences',
-      year: 2023,
-      paper: 'Paper 1',
-      type: 'exam',
-      term: 'November',
-      difficulty: 'hard',
-      downloadCount: 734,
-      rating: 4.4,
-      fileSize: '2.7 MB',
-      addedDate: '2024-01-10'
-    },
-    {
-      id: '5',
-      subject: 'Life Sciences',
-      year: 2023,
-      paper: 'Paper 1',
-      type: 'exam',
-      term: 'November',
-      difficulty: 'medium',
-      downloadCount: 623,
-      rating: 4.3,
-      fileSize: '2.1 MB',
-      addedDate: '2024-01-08'
-    }
-  ]);
+  const [pastPapers, setPastPapers] = useState<PastPaper[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('all');
@@ -115,13 +53,70 @@ const StudentPastPapers = () => {
 
   const filteredPapers = pastPapers.filter(paper => {
     const matchesSearch = paper.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         paper.paper.toLowerCase().includes(searchTerm.toLowerCase());
+      paper.paper.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSubject = selectedSubject === 'all' || paper.subject === selectedSubject;
     const matchesYear = selectedYear === 'all' || paper.year.toString() === selectedYear;
     const matchesType = selectedType === 'all' || paper.type === selectedType;
-    
+
     return matchesSearch && matchesSubject && matchesYear && matchesType;
   });
+
+  useEffect(() => {
+    const fetchPastPapers = async () => {
+      setIsLoading(true);
+      try {
+        // First get all subjects
+        const subjectsSnapshot = await getDocs(collection(db, 'resources'));
+        const papers: PastPaper[] = [];
+
+        for (const subjectDoc of subjectsSnapshot.docs) {
+          const subjectData = subjectDoc.data();
+          const subjectName = subjectData.name;
+
+          // Get past papers from this subject's pastPapers subcollection
+          const papersSnapshot = await getDocs(collection(db, 'resources', subjectDoc.id, 'pastPapers'));
+
+          papersSnapshot.forEach(paperDoc => {
+            const paperData = paperDoc.data();
+
+            // Map Firestore structure to UI structure
+            const difficultyMap: Record<string, 'easy' | 'medium' | 'hard'> = {
+              beginner: 'easy',
+              intermediate: 'medium',
+              advanced: 'hard',
+            };
+            const added = paperData.createdAt?.seconds
+              ? new Date(paperData.createdAt.seconds * 1000).toISOString().split('T')[0]
+              : (paperData.createdAt ? new Date(paperData.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
+
+            papers.push({
+              id: paperDoc.id,
+              subject: paperData.subject || subjectName,
+              year: Number(paperData.year) || new Date().getFullYear(),
+              paper: paperData.title || paperData.exam || 'Paper',
+              type: (paperData.type as any) || 'exam',
+              term: paperData.term,
+              difficulty: difficultyMap[paperData.difficulty] || 'medium',
+              downloadCount: Number(paperData.downloadCount || 0),
+              rating: Number(paperData.rating || 4.3),
+              fileSize: paperData.fileSize || '—',
+              addedDate: added,
+            });
+          });
+        }
+
+        // Sort by most recent added date
+        papers.sort((a, b) => new Date(b.addedDate).getTime() - new Date(a.addedDate).getTime());
+        setPastPapers(papers);
+      } catch (e) {
+        console.error('Failed to load past papers:', e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPastPapers();
+  }, []);
 
   const handleDownload = (paperId: string) => {
     const paper = pastPapers.find(p => p.id === paperId);
@@ -152,26 +147,25 @@ const StudentPastPapers = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-blue-600 text-white p-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link to="/student" className="hover:bg-blue-700 p-2 rounded-lg transition-colors">
-              <ArrowLeft className="h-6 w-6" />
-            </Link>
+      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Past Papers</h1>
-              <p className="text-blue-100">Browse and download previous exam papers</p>
+              <p className="text-green-100 mt-1">Browse and download previous exam papers</p>
             </div>
+            <Button
+              onClick={() => setShowFilters(!showFilters)}
+              className="bg-white text-green-600 hover:bg-green-50 shadow-lg"
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Filters
+            </Button>
           </div>
-          <Button 
-            onClick={() => setShowFilters(!showFilters)}
-            className="bg-white text-blue-600 hover:bg-blue-50"
-          >
-            <Filter className="h-4 w-4 mr-2" />
-            Filters
-          </Button>
         </div>
       </div>
+
+      <StudentNavbar />
 
       <div className="max-w-7xl mx-auto p-6">
         {/* Search and Filters */}
@@ -188,7 +182,7 @@ const StudentPastPapers = () => {
                   className="pl-10"
                 />
               </div>
-              
+
               {/* Filters */}
               {showFilters && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
@@ -205,7 +199,7 @@ const StudentPastPapers = () => {
                       ))}
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-1">Year</label>
                     <select
@@ -219,7 +213,7 @@ const StudentPastPapers = () => {
                       ))}
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-1">Type</label>
                     <select
@@ -242,12 +236,16 @@ const StudentPastPapers = () => {
         {/* Results Summary */}
         <div className="mb-6">
           <p className="text-gray-600">
-            Showing {filteredPapers.length} paper{filteredPapers.length !== 1 ? 's' : ''}
+            {isLoading ? 'Loading papers…' : `Showing ${filteredPapers.length} paper${filteredPapers.length !== 1 ? 's' : ''}`}
           </p>
         </div>
 
         {/* Papers Grid */}
-        {filteredPapers.length === 0 ? (
+        {isLoading ? (
+          <Card>
+            <CardContent className="text-center py-12">Loading...</CardContent>
+          </Card>
+        ) : filteredPapers.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
               <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -299,10 +297,10 @@ const StudentPastPapers = () => {
                       </div>
                       <span className="text-xs">{paper.fileSize}</span>
                     </div>
-                    
+
                     {/* Action Buttons */}
                     <div className="flex gap-2">
-                      <Button 
+                      <Button
                         onClick={() => handleDownload(paper.id)}
                         className="flex-1 bg-blue-600 hover:bg-blue-700"
                       >
@@ -313,7 +311,7 @@ const StudentPastPapers = () => {
                         <Eye className="h-4 w-4" />
                       </Button>
                     </div>
-                    
+
                     <div className="text-xs text-gray-400">
                       Added: {new Date(paper.addedDate).toLocaleDateString()}
                     </div>
