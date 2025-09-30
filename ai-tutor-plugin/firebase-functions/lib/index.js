@@ -9,7 +9,7 @@ admin.initializeApp();
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || 'PLACE API KEY HERE';
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
 // Google AI for embeddings (this works)
-const GOOGLE_AI_API_KEY = process.env.GOOGLE_AI_API_KEY || 'AIzaSyAQxWPIUjQSgNrj39gcZWoqAXml-C7zm-s';
+const GOOGLE_AI_API_KEY = process.env.GOOGLE_AI_API_KEY || 'PLACE API KEY HERE';
 // Initialize Google AI for embeddings
 const generative_ai_1 = require("@google/generative-ai");
 const genAI = new generative_ai_1.GoogleGenerativeAI(GOOGLE_AI_API_KEY);
